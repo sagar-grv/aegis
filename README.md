@@ -50,6 +50,10 @@ pnpm build
 
 The full stack uses React 19, TypeScript, Vite, Express, tRPC, Drizzle, MySQL, built-in OAuth, object storage, and server-side model calls. Environment credentials are supplied by the managed runtime; do **not** commit `.env` files or substitute browser-side secrets.
 
+## Deployment Boundary
+
+The dedicated Vercel deployment at [aegis-ecru.vercel.app](https://aegis-ecru.vercel.app) has been verified for the public, live-data decision desk and hard mode. It invokes the deployed public tRPC procedure and returns real Open-Meteo evidence. The protected operator features require OAuth, database, object-storage, and server-side model credentials in the Vercel project before they can be used on that external domain; those secrets are intentionally not copied from the managed runtime.
+
 ## Validation Snapshot
 
 The current validation record confirms a live Bengaluru public assessment, a hard-mode weather-source omission that produced a refusal at 50% coverage and 40% confidence, persistence of an operator field report and human review receipt through a self-cleaning integration probe, and a clean database after that probe. The automated suite contains **16 passing tests**, including five Aegis-specific decision and field-photo input tests. See [Aegis validation](docs/AEGIS_VALIDATION.md).

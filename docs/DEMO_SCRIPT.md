@@ -1,5 +1,19 @@
 # Aegis — Feature-Tested Demo Script
 
+## Recorded Submission Artifact
+
+The attached submission artifact is a **36.6-second evidence-based recording**. It opens the deployed Vercel desk with real Open-Meteo evidence, triggers and restores the live Wind & weather fault, changes to New Delhi, and then shows the output of the just-run, self-cleaning protected-workflow probe. It does not impersonate an operator or present a fabricated photo upload as real.
+
+| Approximate time | Visible evidence | Presenter narration |
+| --- | --- | --- |
+| 00:00–00:06 | Bengaluru public desk resolves live temperature, wind gust, rain probability, air quality, provenance, and 75% confidence. | “Aegis begins with real environmental evidence. The recommendation is visible together with coverage, source provenance, and the reason for it.” |
+| 00:06–00:14 | Wind & weather is intentionally hidden. The desk refuses, confidence falls to 40%, and a fresh on-site wind-gust reading is requested. | “Hard mode removes a decisive stream. Aegis does not compensate with confidence theatre: it refuses and names the smallest missing fact.” |
+| 00:14–00:18 | Wind & weather is restored and the public assessment returns to monitoring. | “Restore the source and the system recovers to an evidence-supported recommendation.” |
+| 00:18–00:27 | The site changes from Bengaluru to New Delhi; the live assessment is recalculated for a different Indian coordinate. | “Aegis is a decision desk, not a fixed dashboard. Every site selection requests evidence for that coordinate.” |
+| 00:27–00:37 | A terminal-style validation record presents the actual self-cleaning integration result: live sources, refusal, restored assessment, field-report persistence, and human-receipt persistence. | “The protected workflow was tested in the managed full-stack runtime using a temporary record that was cleaned up. No operator session, field observation, or photo was fabricated for this recording.” |
+
+> **Final demonstration step for a presenter.** On a runtime with OAuth, database, storage, and model credentials available, sign in with the presenter’s own account, add only a genuine field observation, optionally attach a privacy-safe real scene photo, and record the actual human response. The [activation guide](ACTIVATION_GUIDE.md) provides the exact sequence.
+
 ## Recording Intent
 
 This is a **live product demonstration**, not a slide deck. Keep the browser visible and narrate what the system knows, what it does not know, and why refusal is the most important capability. Do not pre-seed or fabricate operator evidence for the recording.
