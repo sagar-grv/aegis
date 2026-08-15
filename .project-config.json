@@ -1,8 +1,16 @@
 {
   "build_command": "pnpm run build",
-  "capabilities": [],
+  "capabilities": [
+    "db",
+    "server",
+    "user"
+  ],
   "dev_command": "pnpm run dev",
-  "env_vars": {},
+  "env_vars": {
+    "DATABASE_URL": "mysql://LudKqqsvVLCVtNK.da1bbc97f57a:358xZXExjElAx3CzN40F@gateway04.us-east-1.prod.aws.tidbcloud.com:4000/n4Xxc6UCqjuJLYeyWapKpT?ssl={\"rejectUnauthorized\":true}",
+    "DRIZZLE_DATABASE_URL": "mysql://LudKqqsvVLCVtNK.da1bbc97f57a:358xZXExjElAx3CzN40F@gateway04.us-east-1.prod.aws.tidbcloud.com:4000/n4Xxc6UCqjuJLYeyWapKpT?ssl={\"rejectUnauthorized\":true}",
+    "MANUS_WEBDEV_PROJECT_ID": "n4Xxc6UCqjuJLYeyWapKpT"
+  },
   "experiments": null,
   "git_remote": {
     "repo_url": "https://7f0548f6b28a1758d9bf7be630d36cb4.artifacts.cloudflare.net/git/prod/n4Xxc6UCqjuJLYeyWapKpT.git",

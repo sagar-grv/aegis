@@ -1,34 +1,23 @@
-# VeilTrace — Validation Record
+# InsightLoop — Validation Record
 
-## Build Validation
-
-`pnpm build` completed successfully after the Track 05 rebuild. The Vite bundle and server bundle completed without TypeScript or compile errors. The output contains a non-blocking bundle-size advisory only.
-
-## Interaction Validation
-
-| Scenario | Expected outcome | Result |
-|---|---|---|
-| Baseline screening | Transactions remain individually normal; score remains 41; Camouflage Index remains 18. | Passed. |
-| Unmask coordinated pattern | Graph ring activates; score rises to 93; recommendation changes to Hold & review. | Passed. |
-| Counter-evidence | Verified KYC lowers risk to 58, raises false-positive guard to 88, and preserves unresolved signals. | Passed. |
-| Account / evidence selection | Selecting a graph or evidence item updates the visible graph focus. | Passed. |
-| Stream control | Live stream status visibly switches between analysing and paused. | Passed. |
-
-## Responsive Validation
-
-Desktop review confirmed the intended case-table narrative: evidence ledger, network graph, then decision receipt. A mobile review at 390px confirmed the same narrative becomes a vertical case dossier without horizontal overflow or missing controls.
-
-## Evaluation-Criteria Alignment
-
-| Criterion | Evidence |
+| Check | Result |
 |---|---|
-| Innovation and creativity | Camouflage Index plus counterfactual-based false-positive guard. |
-| Technical implementation | Stateful risk model, mode transitions, SVG graph, interactive evidence and analyst flows. |
-| Problem solving | Focuses specifically on coordinated fraud designed to bypass isolated-transaction rules. |
-| User experience | Evidence-first hierarchy, responsive layout, legible risk semantics, clear human-review boundary. |
-| Scalability | Architecture documents a future path to server-side graph, identity, payment, and device integrations. |
-| Presentation | Live site, visual demo, project documentation, and narrated demo script are provided. |
+| TypeScript after InsightLoop rewrite | Passed with zero reported errors. |
+| Production build | Passed with `pnpm build`. |
+| Unit tests | Passed: logout, diagnosis schema validation, bounded-score rejection, path-status mapping, unauthenticated/forbidden rejection, malformed input rejection, plus mocked authenticated learner workspace, submission persistence, and authorised teacher success paths. |
+| Live model catalogue | Queried before selecting the production model. |
+| Live structured AI contract | Passed. A non-persistent `gpt-5-mini` probe returned all eight required diagnosis fields with bounded scores. |
+| Learner data seeding | None. Empty states remain empty until an authenticated user submits work. |
 
-## Simulation Disclosure
+## Independent Validation Boundary
 
-All data and outcomes are fictional. The project makes no claim that it can identify real fraud without a governed, audited, privacy-preserving production architecture.
+The final database write requires a real authenticated learner account. The app deliberately prevents artificial learner records, so the protected end-to-end mutation was not invoked with fabricated data. Its authentication gate and positive procedure contract were verified with isolated unit tests; its schema, persistence code, and structured model response were independently verified. Follow [`ACTIVATION_GUIDE.md`](ACTIVATION_GUIDE.md) to perform the final user-owned submission.
+
+| Evaluation criterion | Evidence |
+|---|---|
+| Innovation | Misconception-linked learning thread and next diagnostic probe. |
+| Technical implementation | Authenticated full-stack flow, strict AI schema, MySQL persistence, role-gated analytics. |
+| Problem solving | Distinguishes reasoning patterns, not only answer correctness. |
+| User experience | Calm learner flow, visible confidence, explainable feedback, no fabricated activity. |
+| Scalability | Structured data model and role boundary support institutional extensions. |
+| Presentation | Live app, documentation, activation guide, and recording script. |

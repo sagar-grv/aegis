@@ -1,0 +1,31 @@
+{
+  "model": "gpt-5-mini",
+  "max_completion_tokens": 1400,
+  "messages": [
+    {
+      "role": "system",
+      "content": "Return only JSON matching the provided schema. You are an educational diagnostic assistant. Analyse the reasoning briefly and constructively."
+    },
+    {
+      "role": "user",
+      "content": "Topic: arithmetic. Question: What is 12 divided by 3? Learner answer: 3, because I divided the digits. Confidence: 70."
+    }
+  ],
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "learning_diagnosis_probe",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "misconceptionLabel": { "type": "string" },
+          "masteryEstimate": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "nextPrompt": { "type": "string" }
+        },
+        "required": ["misconceptionLabel", "masteryEstimate", "nextPrompt"],
+        "additionalProperties": false
+      }
+    }
+  }
+}

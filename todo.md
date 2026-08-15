@@ -12,3 +12,26 @@
 - [x] Add interactive camouflage scoring, graph evidence, and false-positive controls.
 - [x] Rewrite the documentation and demo assets for Track 05.
 - [x] Push the revised project and verify the refreshed Vercel deployment.
+- [ ] Confirm the Indian transaction provider, consent mechanism, and permitted operational actions.
+- [ ] Upgrade VeilTrace with analyst authentication, database persistence, and secure server routes.
+- [ ] Connect and validate the provider’s real transaction or webhook ingestion interface.
+- [ ] Add immutable case evidence, reviewer decisions, audit logging, and alert handling.
+- [ ] Complete end-to-end live integration and security validation before representing any workflow as operational.
+- [ ] Document India-specific consent, data-governance, and escalation controls for the operating team.
+- [ ] Implement Razorpay webhook signature verification and idempotent event capture.
+- [ ] Implement analyst-only case queue, decision records, and immutable event audit trail.
+- [ ] Add production secret placeholders and a secure activation runbook for Razorpay live mode.
+- [ ] Select a non-fintech STAMPERS track with a reliable India-relevant public data source.
+- [ ] Replace the fraud workflow with a live-data solution and measurable end-user outcome.
+- [ ] Validate fresh data retrieval, graceful error handling, and criterion coverage.
+- [ ] Rewrite the project documentation, repository identity, and deployment for the new track.
+- [x] Define the InsightLoop misconception model, privacy boundary, and learner data structure.
+- [x] Replace VeilTrace with authenticated learner and teacher workspaces.
+- [x] Implement live AI analysis of learner-submitted answers using gpt-5-mini with structured safety checks.
+- [x] Persist adaptive learning paths and display real teacher analytics from submitted attempts.
+- [ ] Validate end-to-end learner submissions, AI feedback, path updates, and teacher visibility.
+- [x] Validate the live model contract and protected workflow without storing fabricated learner records.
+- [x] Document the first-use activation steps for a real learner or teacher account.
+- [x] Add automated validation for unauthenticated learner access, forbidden teacher access, and protected input checks.
+- [ ] Verify a real authenticated learner submission and teacher aggregate after an account owner provides genuine educational work.
+- [x] Add positive mocked success-path tests for learner workspace, submission persistence, and authorised teacher analytics.

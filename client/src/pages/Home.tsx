@@ -1,119 +1,127 @@
-/**
- * VEILTRACE — EVIDENCE UNDER GLASS
- * Design reminder: every fraud alert is an inspectable claim; network evidence,
- * uncertainty, and false-positive protection must remain visible at every step.
- */
 import { useMemo, useState } from "react";
+import { startLogin } from "@/const";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 import "./Home.css";
-import { Activity, AlertTriangle, ArrowUpRight, BadgeCheck, Binary, Check, ChevronRight, CircleDollarSign, Eye, FileText, Fingerprint, GitBranch, Layers3, Menu, Network, PanelRight, Pause, Play, Radio, ScanSearch, ShieldCheck, ShieldQuestion, Sparkles, Target, TimerReset, UserCheck, X } from "lucide-react";
+import { Activity, ArrowRight, BookOpenCheck, BrainCircuit, ChevronRight, CircleHelp, Compass, Lightbulb, LoaderCircle, LogOut, Menu, PencilLine, ShieldCheck, Sparkles, Target, Users, X } from "lucide-react";
 
-type CaseMode = "latent" | "unmasked" | "cleared";
+type Workspace = "learn" | "teach";
 
-const events = [
-  { time: "09:42:06", from: "A-117", to: "M-9C", amount: "₹4,940", tag: "normal-looking" },
-  { time: "09:42:51", from: "A-204", to: "M-9C", amount: "₹5,020", tag: "device shared" },
-  { time: "09:43:17", from: "A-381", to: "M-9C", amount: "₹4,880", tag: "timing match" },
-  { time: "09:43:39", from: "A-117", to: "B-711", amount: "₹4,810", tag: "beneficiary hop" },
-];
+const emptyForm = { topic: "", prompt: "", learnerAnswer: "", selfConfidence: 50 };
 
-const evidence = [
-  { id: "01", title: "Device relay", copy: "3 accounts authenticate through one device fingerprint across 11 minutes.", strength: "High", icon: Fingerprint },
-  { id: "02", title: "Beneficiary convergence", copy: "Funds fragment, then reassemble across a previously unrelated account path.", strength: "High", icon: GitBranch },
-  { id: "03", title: "Timing heartbeat", copy: "The transactions repeat at a 41-second cadence outside each user’s normal rhythm.", strength: "Medium", icon: TimerReset },
-  { id: "04", title: "Individual normality", copy: "Each payment amount sits inside the expected personal range.", strength: "Counter", icon: ShieldQuestion },
-];
-
-const nodeClass: Record<CaseMode, string> = { latent: "latent", unmasked: "unmasked", cleared: "cleared" };
+function formatDate(value: Date | string) {
+  return new Date(value).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
 
 export default function Home() {
-  const [mode, setMode] = useState<CaseMode>("latent");
-  const [selected, setSelected] = useState("M-9C");
-  const [streaming, setStreaming] = useState(true);
+  const { user, loading, isAuthenticated, logout } = useAuth();
+  const [workspace, setWorkspace] = useState<Workspace>("learn");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const [notice, setNotice] = useState<string | null>(null);
+  const utils = trpc.useUtils();
+  const isTeacher = user?.role === "admin" || user?.role === "analyst";
+  const learnerQuery = trpc.learning.mine.useQuery(undefined, { enabled: isAuthenticated });
+  const teacherQuery = trpc.learning.teacherAnalytics.useQuery(undefined, { enabled: Boolean(isAuthenticated && isTeacher && workspace === "teach") });
+  const submit = trpc.learning.submit.useMutation({
+    onSuccess: async () => {
+      setForm(emptyForm);
+      setNotice("Your learning path has been updated from this response.");
+      await utils.learning.mine.invalidate();
+      await utils.learning.teacherAnalytics.invalidate();
+    },
+  });
 
-  const score = mode === "latent" ? 41 : mode === "unmasked" ? 93 : 58;
-  const action = mode === "latent" ? "Monitor" : mode === "unmasked" ? "Hold & review" : "Allow with watch";
-  const narrative = mode === "latent"
-    ? "Transactions remain individually ordinary. Relationship correlation has not yet been expanded."
-    : mode === "unmasked"
-      ? "A coordinated mule network is visible. The relationship pattern—not payment size—drives the alert."
-      : "Verified employment linkage explains the shared device. Two network factors remain under observation.";
-  const riskLabel = mode === "latent" ? "LOW VISIBILITY" : mode === "unmasked" ? "COORDINATED RING" : "REVIEW ADJUSTED";
-  const decisionCopy = mode === "latent" ? "Expand relationship evidence" : mode === "unmasked" ? "Place a temporary review hold" : "Continue with enhanced monitoring";
+  const latest = learnerQuery.data?.attempts?.[0];
+  const paths = learnerQuery.data?.paths ?? [];
+  const nextPath = paths[0];
+  const learningState = useMemo(() => {
+    if (!paths.length) return { label: "Starting point", detail: "Submit your own response to create the first learning thread." };
+    const active = paths.filter(path => path.status === "active").length;
+    return { label: active ? `${active} active thread${active === 1 ? "" : "s"}` : "Review ready", detail: "Your path is derived only from your submitted work." };
+  }, [paths]);
 
-  const benefit = useMemo(() => mode === "unmasked" ? "11 related payments protected" : mode === "cleared" ? "False-positive friction reduced" : "Awaiting relationship check", [mode]);
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    setNotice(null);
+    submit.mutate(form);
+  };
 
   return (
-    <div className={`vt-shell vt-${mode}`}>
-      <header className="vt-topbar">
-        <div className="vt-brand"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/91236325/MsANkwECuIgQsDwP.png" alt="VeilTrace split fingerprint mark" /><div><strong>VeilTrace</strong><span>network intelligence</span></div></div>
-        <div className="vt-top-meta"><span><Radio size={14} /> SANDBOX STREAM / 09:44:12 IST</span><span className="vt-live"><i /> {streaming ? "ANALYSING" : "STREAM PAUSED"}</span><button className="vt-menu" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle case controls"><Menu size={18} /></button></div>
+    <div className="il-shell" style={{ backgroundImage: "url('/manus-storage/insightloop-paper-texture_d1219bb7.jpg')" }}>
+      <header className="il-topbar">
+        <div className="il-brand"><img src="/manus-storage/insightloop-thread-mark_0298194b.png" alt="InsightLoop thread mark" /><div><strong>InsightLoop</strong><span>misconception-first learning</span></div></div>
+        <div className="il-top-actions">
+          <span className="il-data-note"><i /> PRIVATE LEARNER DATA</span>
+          {user ? <div className="il-user"><span>{user.name?.split(" ")[0] || "Learner"}</span><button onClick={() => logout()} aria-label="Sign out"><LogOut size={16} /></button></div> : <button className="il-login" onClick={() => startLogin()}>Sign in <ArrowRight size={15} /></button>}
+          <button className="il-menu" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">{mobileOpen ? <X size={19} /> : <Menu size={19} />}</button>
+        </div>
       </header>
 
-      <div className="vt-frame">
-        <aside className={`vt-rail ${mobileOpen ? "is-open" : ""}`}>
-          <div className="vt-case-id"><span>ACTIVE CASE</span><strong>VT–2026–041</strong><small>Payment cluster / review queue</small></div>
-          <div className="vt-rail-block"><span className="vt-mono">CASE STATUS</span><div className={`vt-status ${mode}`}><i /> {riskLabel}</div><p>{mode === "latent" ? "Signals are individually weak." : mode === "unmasked" ? "Review required within 6 minutes." : "Customer harm protected by counter-evidence."}</p></div>
-          <nav className="vt-nav" aria-label="VeilTrace investigation views"><button className="active"><ScanSearch size={18} /> Case table <em>01</em></button><button><Network size={18} /> Relationship graph <em>08</em></button><button><Layers3 size={18} /> Evidence ledger <em>04</em></button><button><PanelRight size={18} /> Review queue <em>12</em></button></nav>
-          <div className="vt-rail-bottom"><span className="vt-mono">MODEL POSTURE</span><div><ShieldCheck size={18} /><p><strong>Human review first</strong>Automated scoring recommends; analysts decide.</p></div></div>
+      <div className="il-layout">
+        <aside className={`il-rail ${mobileOpen ? "open" : ""}`}>
+          <div className="il-rail-intro"><span className="il-mono">YOUR STUDIO</span><strong>{isAuthenticated ? learningState.label : "Think in public. Learn in private."}</strong><p>{isAuthenticated ? learningState.detail : "InsightLoop listens for the reasoning behind an answer—not just whether it was right."}</p></div>
+          <nav className="il-nav" aria-label="InsightLoop workspace">
+            <button className={workspace === "learn" ? "active" : ""} onClick={() => { setWorkspace("learn"); setMobileOpen(false); }}><PencilLine size={18} /><span>Learning studio</span><em>01</em></button>
+            {isTeacher && <button className={workspace === "teach" ? "active" : ""} onClick={() => { setWorkspace("teach"); setMobileOpen(false); }}><Users size={18} /><span>Teacher lens</span><em>02</em></button>}
+          </nav>
+          <div className="il-safety-card"><ShieldCheck size={18} /><p><strong>Human-centred AI</strong>Feedback is a learning prompt, not a diagnosis or a grade.</p></div>
+          <div className="il-rail-bottom"><span className="il-mono">HOW IT ADAPTS</span><p>Response → reasoning signal → targeted probe → updated path.</p></div>
         </aside>
 
-        <main className="vt-main">
-          <section className="vt-hero" style={{ backgroundImage: "url('https://files.manuscdn.com/user_upload_by_module/session_file/91236325/kGZMGsWyjyqXwOFH.jpg')" }}>
-            <div className="vt-hero-copy"><p className="vt-mono">TRACK 05 / REAL-TIME FINANCIAL FRAUD & RISK INTELLIGENCE</p><h1>The transaction looked normal.<br /><em>The network did not.</em></h1><p>VeilTrace detects coordinated fraud that imitates legitimate customer behaviour, then shows exactly why the pattern deserves review.</p></div>
-            <div className="vt-hero-actions"><button className="vt-secondary" onClick={() => setStreaming(!streaming)}>{streaming ? <Pause size={15} /> : <Play size={15} />}{streaming ? "Pause stream" : "Resume stream"}</button><button className="vt-primary" onClick={() => setMode("unmasked")}><Eye size={15} /> Unmask pattern</button></div>
-          </section>
-
-          <section className="vt-case-bar">
-            <div><span className="vt-mono">CASE QUESTION</span><strong>Is M-9C a legitimate merchant path—or the convergence point for a coordinated mule ring?</strong></div>
-            <div className="vt-case-bars"><span><i className="normal" /> individually normal</span><span><i className="risk" /> collectively abnormal</span></div>
-          </section>
-
-          <section className="vt-workbench">
-            <article className="vt-evidence-panel">
-              <div className="vt-panel-heading"><div><span className="vt-mono">EVIDENCE LEDGER</span><h2>What raised suspicion?</h2></div><span className="vt-count">04</span></div>
-              <div className="vt-evidence-list">{evidence.map(item => { const Icon = item.icon; return <button className={`vt-evidence ${item.strength.toLowerCase()}`} key={item.id} onClick={() => setSelected(item.id === "04" ? "A-204" : "M-9C")}><span className="vt-evidence-id">{item.id}</span><Icon size={17} /><div><strong>{item.title}</strong><p>{item.copy}</p></div><em>{item.strength}</em></button>; })}</div>
-              <div className="vt-analyst-note"><Sparkles size={15} /><p><strong>Novel signal:</strong> the **Camouflage Index** detects where personal normality masks network abnormality.</p></div>
-            </article>
-
-            <article className="vt-graph-panel">
-              <div className="vt-panel-heading"><div><span className="vt-mono">RELATIONSHIP GRAPH / 11-MINUTE WINDOW</span><h2>Coordinated pattern inference</h2></div><button className="vt-link-button" onClick={() => setMode(mode === "latent" ? "unmasked" : "latent")}>{mode === "latent" ? "Expand 2-hop graph" : "Collapse graph"} <ChevronRight size={15} /></button></div>
-              <div className="vt-graph-stage">
-                <svg className="vt-network" viewBox="0 0 720 405" role="img" aria-label="Interactive account relationship network">
-                  <defs><filter id="soft"><feGaussianBlur stdDeviation="2" /></filter></defs>
-                  <path className="vt-edge base" d="M130 155 C210 180 270 188 360 203" /><path className="vt-edge base" d="M160 295 C235 260 290 235 360 203" /><path className="vt-edge base" d="M260 90 C300 132 335 170 360 203" /><path className="vt-edge base" d="M360 203 C450 185 505 150 582 113" /><path className="vt-edge base" d="M360 203 C440 244 505 282 595 312" />
-                  <path className="vt-edge ring" d="M130 155 C190 52 320 38 418 102 C510 162 524 286 410 334 C290 384 162 330 160 295" /><path className="vt-edge hop" d="M582 113 C645 170 655 252 595 312" />
-                  <circle className="vt-halo" cx="360" cy="203" r="84" filter="url(#soft)" />
-                </svg>
-                <button className={`vt-node n1 ${selected === "A-117" ? "selected" : ""}`} onClick={() => setSelected("A-117")}><span>A–117</span><small>personal</small></button>
-                <button className={`vt-node n2 ${selected === "A-204" ? "selected" : ""}`} onClick={() => setSelected("A-204")}><span>A–204</span><small>personal</small></button>
-                <button className={`vt-node n3 ${selected === "A-381" ? "selected" : ""}`} onClick={() => setSelected("A-381")}><span>A–381</span><small>personal</small></button>
-                <button className={`vt-node core ${nodeClass[mode]} ${selected === "M-9C" ? "selected" : ""}`} onClick={() => setSelected("M-9C")}><span>M–9C</span><small>convergence</small></button>
-                <button className={`vt-node n4 ${selected === "B-711" ? "selected" : ""}`} onClick={() => setSelected("B-711")}><span>B–711</span><small>beneficiary</small></button>
-                <button className="vt-node n5"><span>D–44</span><small>shared device</small></button>
-                <div className="vt-graph-guide"><span><i className="vt-dot account" /> account</span><span><i className="vt-dot relation" /> relationship path</span><span><i className="vt-dot suspicious" /> coordinated ring</span></div>
-                <div className="vt-focus-tag">FOCUS: {selected} <span>•</span> {mode === "unmasked" ? "RING REVEALED" : "PENDING CORRELATION"}</div>
-              </div>
-              <div className="vt-graph-footer"><div><span className="vt-mono">BEHAVIOURAL CAMOUFLAGE</span><strong>{mode === "latent" ? "18 / 100" : mode === "unmasked" ? "91 / 100" : "44 / 100"}</strong><p>How safely the network hides behind legitimate-looking events.</p></div><div className="vt-mini-bars"><i /><i /><i /><i /><i /></div><button onClick={() => setMode("unmasked")}>Reveal basis <ArrowUpRight size={15} /></button></div>
-            </article>
-
-            <article className="vt-receipt-panel">
-              <div className="vt-panel-heading"><div><span className="vt-mono">DECISION RECEIPT</span><h2>Reviewable risk, not a black box</h2></div><AlertTriangle size={19} /></div>
-              <div className="vt-score-row"><div className={`vt-score ${mode}`}><strong>{score}</strong><span>/100</span></div><div><span className="vt-mono">RECOMMENDED ACTION</span><h3>{action}</h3><p>{narrative}</p></div></div>
-              <div className="vt-risk-measures"><div><span>Individual normality</span><strong>15</strong><i><b style={{ width: "15%" }} /></i></div><div><span>Network abnormality</span><strong>{mode === "latent" ? "24" : mode === "unmasked" ? "95" : "54"}</strong><i><b style={{ width: `${mode === "latent" ? 24 : mode === "unmasked" ? 95 : 54}%` }} /></i></div><div><span>False-positive guard</span><strong>{mode === "cleared" ? "88" : "62"}</strong><i><b className="guard" style={{ width: `${mode === "cleared" ? 88 : 62}%` }} /></i></div></div>
-              <div className="vt-counterfactual"><span className="vt-mono">COUNTERFACTUAL</span><p>{mode === "cleared" ? "Verified payroll identity reduced the device-reuse signal; keep the beneficiary path under watch." : "A verified employment or household relationship between A–204 and A–381 would reduce the device-relay contribution."}</p><button onClick={() => setMode("cleared")}><UserCheck size={15} /> Add verified KYC evidence</button></div>
-              <div className="vt-receipt-bottom"><div><ShieldCheck size={16} /><span><strong>Analyst approval required</strong>for a hold or customer-impacting action.</span></div><button className="vt-primary" onClick={() => setMode("unmasked")}>{mode === "unmasked" ? <Check size={15} /> : <Target size={15} />}{decisionCopy}</button></div>
-            </article>
-          </section>
-
-          <section className="vt-bottom-row">
-            <article className="vt-stream-panel"><div className="vt-panel-heading"><div><span className="vt-mono">LIVE TRANSACTION STREAM</span><h2>Events that look ordinary</h2></div><span className="vt-stream-pulse"><i /> {streaming ? "LIVE" : "HELD"}</span></div><div className="vt-events">{events.map((event, index) => <div className="vt-event" key={event.time}><span>{event.time}</span><strong>{event.from} <ArrowUpRight size={11} /> {event.to}</strong><b>{event.amount}</b><em className={index > 0 ? "flagged" : ""}>{event.tag}</em></div>)}</div></article>
-            <article className="vt-case-photo"><div className="vt-photo" style={{ backgroundImage: "url('https://files.manuscdn.com/user_upload_by_module/session_file/91236325/BNYFankkAxrvptWW.jpg')" }} /><div><span className="vt-mono">WHY IT MATTERS</span><h3>Catch the ring. Spare the legitimate customer.</h3><p>VeilTrace surfaces the evidence behind suspicion and the counter-evidence that lowers friction.</p><span className="vt-benefit"><BadgeCheck size={15} /> {benefit}</span></div></article>
-          </section>
-
-          <section className="vt-ethics"><Binary size={18} /><p><strong>Prototype safeguard:</strong> all payments, identities, scores, and network relationships are simulated. VeilTrace recommends investigation; it never determines guilt.</p><button><FileText size={15} /> Evidence protocol <ChevronRight size={15} /></button></section>
+        <main className="il-main">
+          {!isAuthenticated ? <PublicStart /> : workspace === "teach" && isTeacher ? <TeacherLens data={teacherQuery.data} loading={teacherQuery.isLoading} /> : <LearningStudio
+            form={form}
+            setForm={setForm}
+            onSubmit={handleSubmit}
+            pending={submit.isPending}
+            error={submit.error?.message}
+            notice={notice}
+            latest={latest}
+            paths={paths}
+            nextPath={nextPath}
+          />}
         </main>
       </div>
     </div>
   );
 }
+
+function PublicStart() {
+  return <>
+    <section className="il-hero" style={{ backgroundImage: "linear-gradient(90deg, rgba(19,22,52,.95) 0%, rgba(19,22,52,.81) 42%, rgba(19,22,52,.18) 100%), url('/manus-storage/insightloop-learning-hero_d82e4561.jpg')" }}>
+      <div className="il-hero-copy"><span className="il-mono">STAMPERS TRACK 04 / ADAPTIVE LEARNING</span><h1>Don’t just mark the answer.<br /><em>Find the thought behind it.</em></h1><p>InsightLoop turns a learner’s real written answer into an explainable misconception signal, a focused next question, and a living learning path.</p><button className="il-cta" onClick={() => startLogin()}>Open your learning studio <ArrowRight size={17} /></button></div>
+      <div className="il-hero-stamp"><BrainCircuit size={24} /><span>NO SAMPLE PROGRESS</span><strong>Your path begins with your own response.</strong></div>
+    </section>
+    <section className="il-public-grid"><article><span>01</span><h2>Surface the misconception</h2><p>Analyses the method and reasoning in the learner’s own response, not simply right or wrong.</p></article><article><span>02</span><h2>Test the right next thing</h2><p>Creates one targeted probe designed to distinguish a fragile idea from a genuine understanding.</p></article><article><span>03</span><h2>Make growth legible</h2><p>Builds a private topic path that learners can revisit and teachers can review with permissioned access.</p></article></section>
+  </>;
+}
+
+function LearningStudio({ form, setForm, onSubmit, pending, error, notice, latest, paths, nextPath }: {
+  form: typeof emptyForm; setForm: React.Dispatch<React.SetStateAction<typeof emptyForm>>; onSubmit: (event: React.FormEvent) => void; pending: boolean; error?: string; notice: string | null; latest: any; paths: any[]; nextPath: any;
+}) {
+  const diagnosis = latest?.diagnosis as any | undefined;
+  return <>
+    <section className="il-studio-head"><div><span className="il-mono">LEARNING STUDIO / YOUR REAL WORK</span><h1>Show your reasoning.<br /><em>We’ll find the next foothold.</em></h1></div><div className="il-process-key"><span><i /> your response</span><span><i /> AI diagnosis</span><span><i /> next probe</span></div></section>
+    <section className="il-studio-grid">
+      <article className="il-submit-card"><div className="il-card-heading"><div><span className="il-mono">NEW RESPONSE</span><h2>What are you working on?</h2></div><PencilLine size={20} /></div><form onSubmit={onSubmit}>
+        <label>Topic<input value={form.topic} onChange={e => setForm(current => ({ ...current, topic: e.target.value }))} placeholder="e.g., Algebra — simplifying expressions" required maxLength={160} /></label>
+        <label>Question or task<textarea value={form.prompt} onChange={e => setForm(current => ({ ...current, prompt: e.target.value }))} placeholder="Paste the exact question you are trying to solve." required minLength={8} maxLength={2000} /></label>
+        <label>Your reasoning or answer<textarea className="il-answer" value={form.learnerAnswer} onChange={e => setForm(current => ({ ...current, learnerAnswer: e.target.value }))} placeholder="Write how you approached it. Partial work is useful." required minLength={8} maxLength={5000} /></label>
+        <div className="il-confidence"><div><span>Your confidence</span><strong>{form.selfConfidence}%</strong></div><input type="range" min="0" max="100" value={form.selfConfidence} onChange={e => setForm(current => ({ ...current, selfConfidence: Number(e.target.value) }))} /><div><span>Guessing</span><span>Very sure</span></div></div>
+        <button className="il-submit" disabled={pending}>{pending ? <><LoaderCircle size={17} className="spin" /> Reading your reasoning…</> : <><Sparkles size={17} /> Generate my next learning step</>}</button>
+        <p className="il-form-note"><ShieldCheck size={14} /> Your submission is stored in your private learning record. It is not used to train the model.</p>
+      </form></article>
+      <article className="il-diagnosis-card"><div className="il-card-heading"><div><span className="il-mono">LATEST INSIGHT</span><h2>{diagnosis ? "A reading of your reasoning" : "Waiting for your first response"}</h2></div><Lightbulb size={20} /></div>{diagnosis ? <><div className="il-mastery"><div className="il-ring" style={{ "--score": `${diagnosis.masteryEstimate * 3.6}deg` } as React.CSSProperties}><strong>{diagnosis.masteryEstimate}</strong><span>mastery</span></div><div><span className="il-mono">LIKELY MISCONCEPTION</span><h3>{diagnosis.misconceptionLabel}</h3><p>{diagnosis.misconceptionExplanation}</p></div></div><div className="il-feedback"><span className="il-mono">FEEDBACK</span><p>{diagnosis.feedback}</p></div><div className="il-confidence-band"><span>Model confidence</span><div><i style={{ width: `${diagnosis.confidence}%` }} /></div><strong>{diagnosis.confidence}%</strong></div></> : <div className="il-empty-insight"><Compass size={28} /><p>There is no fabricated profile here. Submit an actual answer and InsightLoop will create a first, reviewable insight.</p></div>}</article>
+    </section>
+    <section className="il-path-grid"><article className="il-next-card"><div className="il-card-heading"><div><span className="il-mono">NEXT ADAPTIVE PROBE</span><h2>{nextPath ? "Follow the thread" : "Your next question will appear here"}</h2></div><Target size={19} /></div>{nextPath ? <><div className="il-path-tag">{nextPath.targetSkill}</div><p className="il-next-question">“{nextPath.nextPrompt}”</p><div className="il-path-meta"><span>{nextPath.misconceptionLabel}</span><span className={`il-status ${nextPath.status}`}>{nextPath.status.replaceAll("_", " ")}</span></div></> : <p className="il-empty-copy">This space becomes useful after a learner shares real reasoning.</p>}</article><article className="il-history-card"><div className="il-card-heading"><div><span className="il-mono">YOUR LEARNING PATHS</span><h2>Topics with a next step</h2></div><BookOpenCheck size={19} /></div>{paths.length ? <div className="il-path-list">{paths.map(path => <div className="il-path-row" key={path.id}><span className="il-path-score">{path.masteryEstimate}</span><div><strong>{path.topic}</strong><p>{path.targetSkill}</p></div><ChevronRight size={17} /></div>)}</div> : <div className="il-empty-copy">Your progress will appear as a set of focused threads, not an arbitrary scorecard.</div>}</article></section>
+    {notice && <div className="il-toast"><ShieldCheck size={16} /> {notice}</div>}{error && <div className="il-error"><CircleHelp size={16} /> {error}</div>}
+  </>;
+}
+
+function TeacherLens({ data, loading }: { data: any; loading: boolean }) {
+  const statuses = data?.activePaths ?? [];
+  return <><section className="il-studio-head teacher"><div><span className="il-mono">TEACHER LENS / CONSENTED CLASS SIGNALS</span><h1>See the patterns.<br /><em>Keep the learner human.</em></h1><p>Only authenticated submissions in this workspace appear here. There is no seeded class data.</p></div></section><section className="il-teacher-metrics"><Metric label="Learner submissions" value={loading ? "—" : data?.summary.submissions ?? 0} icon={PencilLine} /><Metric label="Active learners" value={loading ? "—" : data?.summary.learners ?? 0} icon={Users} /><Metric label="Adaptive paths" value={loading ? "—" : statuses.reduce((sum: number, item: any) => sum + Number(item.total), 0)} icon={Activity} /></section><section className="il-teacher-grid"><article><div className="il-card-heading"><div><span className="il-mono">TOPIC SIGNALS</span><h2>Where learners are asking for help</h2></div><BookOpenCheck size={20} /></div>{data?.topicRows?.length ? <div className="il-topic-list">{data.topicRows.map((row: any, index: number) => <div key={row.topic}><span>{String(index + 1).padStart(2, "0")}</span><strong>{row.topic}</strong><em>{row.submissions} submission{Number(row.submissions) === 1 ? "" : "s"}</em></div>)}</div> : <div className="il-empty-insight"><Compass size={26} /><p>Analytics will appear after real learner submissions arrive. InsightLoop does not invent a class profile.</p></div>}</article><article><div className="il-card-heading"><div><span className="il-mono">PATH HEALTH</span><h2>What the learner paths need</h2></div><BrainCircuit size={20} /></div>{statuses.length ? <div className="il-status-list">{statuses.map((item: any) => <div key={item.status}><span className={`il-status ${item.status}`}>{item.status.replaceAll("_", " ")}</span><strong>{item.total}</strong></div>)}</div> : <div className="il-empty-copy">No active paths yet. Once learners submit work, this view will surface aggregated progress states.</div>}</article></section></>;
+}
+
+function Metric({ label, value, icon: Icon }: { label: string; value: string | number; icon: any }) { return <article className="il-metric"><span><Icon size={18} /></span><div><strong>{value}</strong><p>{label}</p></div></article>; }
