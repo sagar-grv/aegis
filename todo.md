@@ -41,7 +41,7 @@
 - [x] Reassess the supplied STAMPERS 2026 problem statements against real-world deployability and novelty.
 - [x] Present the three strongest problem-statement recommendations with practical data and integration paths.
 - [x] Obtain the user’s selection before starting the replacement solution build.
-- [ ] Build and live-test the selected solution without fabricated operational data.
+- [x] Build and live-test the selected solution without fabricated operational data.
 - [x] Publish the selected solution to a dedicated GitHub repository, deploy the appropriate interface to Vercel, and provide a tested demo video.
 - [x] Score every STAMPERS track only on competitive novelty, hard-mode fit, implementation credibility, and demo impact.
 - [x] Present a fresh top-three shortlist without relying on earlier project directions or personal-data constraints.
@@ -53,16 +53,17 @@
 - [x] Publish Aegis to a dedicated repository, Vercel interface preview, and feature-tested walkthrough video.
 - [x] Finalize Aegis Live Decision Desk's outdoor-operations scenario, source reliability policy, and refusal thresholds.
 - [x] Add live weather and air-quality retrieval with source timestamps and provenance records.
-- [ ] Add genuine operator field-text and optional photo-evidence intake without fabricated evidence.
+- [x] Superseded: the requested public contribution model replaces operator-only text and photo intake; public context is explicitly unattributed and cannot change an Aegis decision.
 - [x] Add the 30% evidence fault-injection control, smallest-missing-fact request, and human-review receipt.
-- [ ] Replace the current application and documentation with the final Aegis Track 01 submission package after the remaining user-owned authenticated workflow validations are completed.
-- [ ] Add authenticated optional field-photo storage and constrained visual-observation extraction without allowing the model to make or execute an operational decision.
-- [ ] Live-test the authenticated Aegis text-report and human-decision receipt workflows using the presenter’s own account and verify the persisted outcome in the interface.
+- [x] Superseded: the final Aegis documentation and submission package now represent the sign-in-free public contribution model.
+- [x] Superseded: the optional photo adapter is public-facing, constrained to neutral visual observations, and cannot make or execute a decision.
+- [x] Superseded: public report and response procedures were validated through a self-cleaning API probe without a user account.
 - [ ] End-to-end validate a privacy-safe real field-photo upload, server-side storage, strict visual-observation extraction, and visible operator confirmation without fabricating field evidence.
 - [x] Replace remaining legacy InsightLoop documentation and remove obsolete Aegis submission links before final delivery.
 - [x] Adapt the Express/tRPC application for Vercel serverless execution and verify the deployed public `aegis.live` procedure returns live evidence rather than a 404.
 - [x] Record an evidence-based Aegis walkthrough showing live public telemetry, deliberate weather evidence loss, explicit refusal, smallest-missing-fact recovery, and an Indian site change; state the authenticated operator test boundary without fabricating a session.
-- [ ] Remove the sign-in requirement from Aegis field-report and human-decision flows; persist public submissions as explicitly unattributed records and verify the public workflow without fabricated evidence.
-- [ ] Run a self-cleaning public-API verification for anonymous Aegis field reports and decision receipts, confirming no temporary record remains after the test.
-- [ ] Re-record the Aegis demonstration to show the live public desk, hard-mode refusal, anonymous public contribution and response controls, and the self-cleaning public API verification.
-- [ ] Make the Vercel public assessment and public contribution experience graceful when external database credentials are unavailable, without fabricating persisted records or blocking live evidence and hard mode.
+- [ ] Complete Vercel production persistence for sign-in-free, explicitly unattributed public reports and responses; the current Vercel fallback is session-only and intentionally disclosed.
+- [x] Run a self-cleaning public-API verification for anonymous Aegis field reports and decision receipts, confirming no temporary record remains after the test.
+- [x] Re-record the Aegis demonstration to show the live public desk, hard-mode refusal, anonymous public contribution and response controls, and the self-cleaning public API verification.
+- [x] Make the Vercel public assessment and public contribution experience graceful when external database credentials are unavailable, without fabricating persisted records or blocking live evidence and hard mode.
+- [ ] Provision Vercel database, object-storage, and model credentials before claiming externally persisted public reports, receipts, or optional visual extraction on the production URL.

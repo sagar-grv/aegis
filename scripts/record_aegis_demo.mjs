@@ -50,7 +50,7 @@ try {
   await page.getByRole("button", { name: "Add public field fact", exact: true }).click();
   await page.getByText("Contribute a field fact", { exact: true }).waitFor({ timeout: 10_000 });
   await page.waitForTimeout(3_000);
-  await page.getByRole("button", { name: "Close" }).click().catch(async () => page.keyboard.press("Escape"));
+  await page.locator(".ag-modal .ag-close").click();
 
   await page.getByRole("button", { name: "Record public human response", exact: true }).click();
   await page.getByText("What will you do with Aegis’s recommendation?", { exact: true }).waitFor({ timeout: 10_000 });
