@@ -35,5 +35,5 @@
 - [x] Add automated validation for unauthenticated learner access, forbidden teacher access, and protected input checks.
 - [ ] Verify a real authenticated learner submission and teacher aggregate after an account owner provides genuine educational work.
 - [x] Add positive mocked success-path tests for learner workspace, submission persistence, and authorised teacher analytics.
-- [ ] Correct the Vercel build so it serves the application rather than exposing the bundled server source.
-- [ ] Document the hosting boundary: full auth, database, and model actions require the project’s managed runtime secrets.
+- [x] Correct the Vercel build so it serves the application rather than exposing the bundled server source.
+- [x] Document the hosting boundary: full auth, database, and model actions require the project’s managed runtime secrets.
