@@ -6,6 +6,12 @@
 
 The current project intentionally uses a clearly labelled **simulated monsoon-flood scenario**. It is a hackathon prototype, not an operational emergency-management system, and it must not be used to make real-world dispatch or medical decisions.
 
+| Submission item | Link |
+|---|---|
+| Live prototype | [stampers-crisisgrid.vercel.app](https://stampers-crisisgrid.vercel.app) |
+| Demo walkthrough | [Watch the video demo](https://files.manuscdn.com/user_upload_by_module/session_file/91236325/DoMzKNkGELeZUkUq.mp4) |
+| Submission index | [`docs/SUBMISSION_LINKS.md`](docs/SUBMISSION_LINKS.md) |
+
 ## The Problem
 
 Large-scale emergencies create an information problem before they become a logistics problem. Reports arrive from citizens, sensors, responders, and infrastructure systems at different levels of reliability. Connectivity can fail precisely when it is needed most. A command interface that merely displays a map does not solve the hard question: **which location deserves limited resources first, and why?**
