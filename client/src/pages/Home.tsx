@@ -1,127 +1,141 @@
-import { useMemo, useState } from "react";
+/**
+ * AEGIS — THE DECISION REFUSAL ENGINE
+ * Design premise: uncertainty is not decoration. Evidence, confidence, abstention,
+ * and human accountability must be legible in the same visual field.
+ */
+import { useMemo, useState, type ChangeEvent } from "react";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import "./Home.css";
-import { Activity, ArrowRight, BookOpenCheck, BrainCircuit, ChevronRight, CircleHelp, Compass, Lightbulb, LoaderCircle, LogOut, Menu, PencilLine, ShieldCheck, Sparkles, Target, Users, X } from "lucide-react";
+import { Activity, AlertTriangle, ArrowRight, BadgeCheck, Bot, BrainCircuit, Camera, Check, ChevronRight, CloudRain, EyeOff, FileCheck2, Gauge, LogOut, MapPin, Menu, MessageSquareText, RefreshCw, ScanLine, ShieldAlert, ShieldCheck, SlidersHorizontal, Sparkles, ThermometerSun, TriangleAlert, UserRoundCheck, Wind, X, Zap } from "lucide-react";
 
-type Workspace = "learn" | "teach";
+type SourceId = "weather" | "rain" | "air" | "field";
+type Site = { label: string; latitude: number; longitude: number };
 
-const emptyForm = { topic: "", prompt: "", learnerAnswer: "", selfConfidence: 50 };
+const sites: Site[] = [
+  { label: "Bengaluru — Cubbon Park", latitude: 12.9716, longitude: 77.5946 },
+  { label: "New Delhi — India Gate", latitude: 28.6129, longitude: 77.2295 },
+  { label: "Mumbai — Oval Maidan", latitude: 18.9388, longitude: 72.8354 },
+  { label: "Hyderabad — Tank Bund", latitude: 17.4239, longitude: 78.4738 },
+];
 
-function formatDate(value: Date | string) {
-  return new Date(value).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
-}
+const sourceLabels: Record<SourceId, { label: string; sublabel: string; icon: typeof Wind }> = {
+  weather: { label: "Wind & weather", sublabel: "Live numerical stream", icon: Wind },
+  rain: { label: "Rain likelihood", sublabel: "Short-range forecast", icon: CloudRain },
+  air: { label: "Air exposure", sublabel: "Live atmospheric stream", icon: Activity },
+  field: { label: "Field observation", sublabel: "Operator-provided text or photo", icon: MessageSquareText },
+};
 
 export default function Home() {
-  const { user, loading, isAuthenticated, logout } = useAuth();
-  const [workspace, setWorkspace] = useState<Workspace>("learn");
+  const { user, isAuthenticated, logout } = useAuth();
+  const [site, setSite] = useState<Site>(sites[0]);
+  const [disabled, setDisabled] = useState<SourceId[]>([]);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [form, setForm] = useState(emptyForm);
+  const [showReport, setShowReport] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [fieldCondition, setFieldCondition] = useState<"clear" | "wet" | "unsafe" | "unknown">("unknown");
+  const [observedWind, setObservedWind] = useState<string>("");
+  const [fieldNote, setFieldNote] = useState("");
+  const [fieldPhotoDataUrl, setFieldPhotoDataUrl] = useState<string | null>(null);
+  const [fieldPhotoName, setFieldPhotoName] = useState<string | null>(null);
+  const [fieldPhotoError, setFieldPhotoError] = useState<string | null>(null);
+  const [reviewNote, setReviewNote] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
   const utils = trpc.useUtils();
-  const isTeacher = user?.role === "admin" || user?.role === "analyst";
-  const learnerQuery = trpc.learning.mine.useQuery(undefined, { enabled: isAuthenticated });
-  const teacherQuery = trpc.learning.teacherAnalytics.useQuery(undefined, { enabled: Boolean(isAuthenticated && isTeacher && workspace === "teach") });
-  const submit = trpc.learning.submit.useMutation({
-    onSuccess: async () => {
-      setForm(emptyForm);
-      setNotice("Your learning path has been updated from this response.");
-      await utils.learning.mine.invalidate();
-      await utils.learning.teacherAnalytics.invalidate();
+
+  const locationInput = useMemo(() => ({ latitude: site.latitude, longitude: site.longitude, siteLabel: site.label }), [site]);
+  const liveQuery = trpc.aegis.live.useQuery({ latitude: site.latitude, longitude: site.longitude }, { refetchInterval: 120_000, retry: 1 });
+  const publicAssessmentQuery = trpc.aegis.preview.useQuery({ ...locationInput, disabled }, { refetchInterval: 120_000, retry: 1 });
+  const assessmentQuery = trpc.aegis.assess.useQuery({ ...locationInput, disabled }, { enabled: isAuthenticated, refetchInterval: 120_000, retry: 1 });
+
+  const fieldMutation = trpc.aegis.reportField.useMutation({
+    onSuccess: async data => {
+      setNotice(data.photoEvidence ? "Field report and attributed visual observation recorded. Aegis recalculated the evidence graph." : "Field report recorded. Aegis recalculated the evidence graph.");
+      setShowReport(false); setFieldNote(""); setObservedWind(""); setFieldCondition("unknown"); setFieldPhotoDataUrl(null); setFieldPhotoName(null); setFieldPhotoError(null);
+      await assessmentQuery.refetch();
+    },
+  });
+  const receiptMutation = trpc.aegis.recordReview.useMutation({
+    onSuccess: async data => {
+      setNotice(`Human decision receipt #${data.receiptId} recorded. Aegis did not act autonomously.`);
+      setReviewOpen(false); setReviewNote("");
+      await assessmentQuery.refetch();
     },
   });
 
-  const latest = learnerQuery.data?.attempts?.[0];
-  const paths = learnerQuery.data?.paths ?? [];
-  const nextPath = paths[0];
-  const learningState = useMemo(() => {
-    if (!paths.length) return { label: "Starting point", detail: "Submit your own response to create the first learning thread." };
-    const active = paths.filter(path => path.status === "active").length;
-    return { label: active ? `${active} active thread${active === 1 ? "" : "s"}` : "Review ready", detail: "Your path is derived only from your submitted work." };
-  }, [paths]);
+  const assessment = isAuthenticated ? assessmentQuery.data?.assessment : publicAssessmentQuery.data?.assessment;
+  const live = assessment?.liveEvidence ?? liveQuery.data;
+  const status = assessment?.decision ?? "observe";
+  const isFaultMode = disabled.length > 0;
+  const riskTone = status === "refuse" ? "refuse" : status === "restrict" ? "restrict" : status === "proceed" ? "proceed" : "observe";
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    setNotice(null);
-    submit.mutate(form);
+  const toggleFault = (source: SourceId) => setDisabled(current => current.includes(source) ? current.filter(item => item !== source) : current.length >= 2 ? current : [...current, source]);
+  const selectSite = (next: Site) => { setSite(next); setDisabled([]); setNotice(null); };
+  const refresh = async () => { await Promise.all([liveQuery.refetch(), publicAssessmentQuery.refetch(), isAuthenticated ? assessmentQuery.refetch() : Promise.resolve()]); setNotice("Live sources refreshed from the environmental evidence providers."); };
+  const submitField = (event: React.FormEvent) => { event.preventDefault(); fieldMutation.mutate({ ...locationInput, fieldCondition, observedWindKph: observedWind ? Number(observedWind) : null, note: fieldNote, photoDataUrl: fieldPhotoDataUrl ?? undefined }); };
+  const submitReview = (action: "approve" | "request_check" | "defer") => receiptMutation.mutate({ ...locationInput, disabled, operatorAction: action, operatorNote: reviewNote || "Operator acknowledgement recorded." });
+  const selectFieldPhoto = (event: ChangeEvent<HTMLInputElement>) => {
+    const photo = event.target.files?.[0];
+    setFieldPhotoError(null);
+    if (!photo) { setFieldPhotoDataUrl(null); setFieldPhotoName(null); return; }
+    if (!["image/jpeg", "image/png", "image/webp"].includes(photo.type)) { setFieldPhotoError("Choose a JPEG, PNG, or WebP image."); event.target.value = ""; return; }
+    if (photo.size > 2_500_000) { setFieldPhotoError("Choose an image no larger than 2.5 MB."); event.target.value = ""; return; }
+    const reader = new FileReader();
+    reader.onload = () => { setFieldPhotoDataUrl(typeof reader.result === "string" ? reader.result : null); setFieldPhotoName(photo.name); };
+    reader.onerror = () => setFieldPhotoError("The selected image could not be read. Please try another file.");
+    reader.readAsDataURL(photo);
   };
 
-  return (
-    <div className="il-shell" style={{ backgroundImage: "url('/manus-storage/insightloop-paper-texture_d1219bb7.jpg')" }}>
-      <header className="il-topbar">
-        <div className="il-brand"><img src="/manus-storage/insightloop-thread-mark_0298194b.png" alt="InsightLoop thread mark" /><div><strong>InsightLoop</strong><span>misconception-first learning</span></div></div>
-        <div className="il-top-actions">
-          <span className="il-data-note"><i /> PRIVATE LEARNER DATA</span>
-          {user ? <div className="il-user"><span>{user.name?.split(" ")[0] || "Learner"}</span><button onClick={() => logout()} aria-label="Sign out"><LogOut size={16} /></button></div> : <button className="il-login" onClick={() => startLogin()}>Sign in <ArrowRight size={15} /></button>}
-          <button className="il-menu" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">{mobileOpen ? <X size={19} /> : <Menu size={19} />}</button>
-        </div>
-      </header>
+  return <div className="ag-shell">
+    <header className="ag-topbar">
+      <div className="ag-brand"><div className="ag-mark"><ShieldCheck size={20} /><i /></div><div><strong>Aegis</strong><span>decision refusal engine</span></div></div>
+      <div className="ag-top-meta"><span className="ag-live-dot"><i /> LIVE ENVIRONMENTAL EVIDENCE</span><span className="ag-mono">TRACK 01 / ADAPTIVE AUTONOMY</span>{user ? <div className="ag-user"><span>{user.name?.split(" ")[0] || "Operator"}</span><button onClick={() => logout()} aria-label="Sign out"><LogOut size={16} /></button></div> : <button className="ag-login" onClick={() => startLogin()}>Operator sign in <ArrowRight size={15} /></button>}<button className="ag-menu" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle desk navigation">{mobileOpen ? <X size={19} /> : <Menu size={19} />}</button></div>
+    </header>
 
-      <div className="il-layout">
-        <aside className={`il-rail ${mobileOpen ? "open" : ""}`}>
-          <div className="il-rail-intro"><span className="il-mono">YOUR STUDIO</span><strong>{isAuthenticated ? learningState.label : "Think in public. Learn in private."}</strong><p>{isAuthenticated ? learningState.detail : "InsightLoop listens for the reasoning behind an answer—not just whether it was right."}</p></div>
-          <nav className="il-nav" aria-label="InsightLoop workspace">
-            <button className={workspace === "learn" ? "active" : ""} onClick={() => { setWorkspace("learn"); setMobileOpen(false); }}><PencilLine size={18} /><span>Learning studio</span><em>01</em></button>
-            {isTeacher && <button className={workspace === "teach" ? "active" : ""} onClick={() => { setWorkspace("teach"); setMobileOpen(false); }}><Users size={18} /><span>Teacher lens</span><em>02</em></button>}
-          </nav>
-          <div className="il-safety-card"><ShieldCheck size={18} /><p><strong>Human-centred AI</strong>Feedback is a learning prompt, not a diagnosis or a grade.</p></div>
-          <div className="il-rail-bottom"><span className="il-mono">HOW IT ADAPTS</span><p>Response → reasoning signal → targeted probe → updated path.</p></div>
-        </aside>
+    <div className="ag-frame">
+      <aside className={`ag-rail ${mobileOpen ? "open" : ""}`}>
+        <div className="ag-incident"><span className="ag-mono">OPERATING QUESTION</span><strong>Can an outdoor team proceed safely?</strong><p>Aegis recommends, restricts, or refuses—based on evidence quality, not confidence theatre.</p></div>
+        <div className="ag-site-picker"><span className="ag-mono">SITE / LIVE COORDINATES</span>{sites.map(candidate => <button key={candidate.label} className={site.label === candidate.label ? "active" : ""} onClick={() => { selectSite(candidate); setMobileOpen(false); }}><MapPin size={15} /><span>{candidate.label.split(" — ")[0]}</span><i>{candidate.latitude.toFixed(2)}°</i></button>)}</div>
+        <div className="ag-rail-footer"><span className="ag-mono">AUTONOMY CONTRACT</span><p><ShieldAlert size={16} /><strong>Never infer certainty.</strong> Aegis refuses when decisive evidence is absent.</p></div>
+      </aside>
 
-        <main className="il-main">
-          {!isAuthenticated ? <PublicStart /> : workspace === "teach" && isTeacher ? <TeacherLens data={teacherQuery.data} loading={teacherQuery.isLoading} /> : <LearningStudio
-            form={form}
-            setForm={setForm}
-            onSubmit={handleSubmit}
-            pending={submit.isPending}
-            error={submit.error?.message}
-            notice={notice}
-            latest={latest}
-            paths={paths}
-            nextPath={nextPath}
-          />}
-        </main>
-      </div>
+      <main className="ag-main">
+        <section className="ag-hero">
+          <div><p className="ag-kicker"><ScanLine size={15} /> EVIDENCE LEDGER / {site.label.toUpperCase()}</p><h1>What should we do<br /><em>when the signals disagree?</em></h1><p className="ag-lede">Aegis is a confidence-aware decision layer for exposed outdoor operations. It traces source reliability, requests the smallest missing fact, and hands the final action to a human.</p></div>
+          <div className="ag-hero-actions"><button className="ag-ghost" onClick={refresh} disabled={liveQuery.isFetching || assessmentQuery.isFetching}><RefreshCw size={16} className={liveQuery.isFetching ? "spin" : ""} /> Refresh evidence</button><button className="ag-primary" onClick={() => isAuthenticated ? setShowReport(true) : startLogin()}><MessageSquareText size={16} /> Add field fact</button></div>
+        </section>
+
+        {!isAuthenticated && <section className="ag-auth-banner"><Bot size={19} /><div><strong>Public assessment uses live sources only.</strong><span>Sign in to add genuine field evidence or record a human decision receipt.</span></div><button onClick={() => startLogin()}>Open operator desk <ArrowRight size={15} /></button></section>}
+
+        <section className="ag-command-grid">
+          <article className="ag-decision-card">
+            <div className="ag-card-heading"><div><span className="ag-mono">CURRENT RECOMMENDATION</span><h2>{status === "refuse" ? "Aegis refuses to decide." : status === "restrict" ? "Restrict exposed operations." : status === "proceed" ? "Proceed with monitoring." : "Evidence is loading."}</h2></div><div className={`ag-status-orb ${riskTone}`}><span>{assessment ? assessment.confidence : "—"}</span><small>confidence</small></div></div>
+            <div className={`ag-verdict ${riskTone}`}><div className="ag-verdict-icon">{status === "refuse" ? <EyeOff size={23} /> : status === "restrict" ? <TriangleAlert size={23} /> : status === "proceed" ? <BadgeCheck size={23} /> : <BrainCircuit size={23} />}</div><div><strong>{status === "refuse" ? "REFUSE / HUMAN FACT REQUIRED" : status === "restrict" ? "RESTRICT / OPERATOR ACKNOWLEDGEMENT" : status === "proceed" ? "PROCEED / LIVE MONITORING" : "LIVE EVIDENCE ASSESSMENT"}</strong><p>{assessment?.action ?? "Aegis is retrieving live environmental evidence."}</p></div></div>
+            {assessment && <><p className="ag-rationale">{assessment.rationale}</p><div className="ag-meters"><div><span>Evidence coverage</span><strong>{assessment.coverage}%</strong><i><b style={{ width: `${assessment.coverage}%` }} /></i></div><div><span>Operational exposure</span><strong>{assessment.riskScore}/100</strong><i className="risk"><b style={{ width: `${assessment.riskScore}%` }} /></i></div></div></>}
+            {assessment?.decision === "refuse" && <div className="ag-missing-fact"><Sparkles size={17} /><div><span className="ag-mono">SMALLEST FACT THAT UNBLOCKS A DECISION</span><p>{assessment.smallestMissingFact}</p></div><button onClick={() => setShowReport(true)}>Request it <ChevronRight size={15} /></button></div>}
+            {assessment && <button className="ag-review-button" onClick={() => isAuthenticated ? setReviewOpen(true) : startLogin()}><UserRoundCheck size={17} /> {isAuthenticated ? "Record human decision" : "Sign in to record a human decision"} <ArrowRight size={15} /></button>}
+          </article>
+
+          <article className="ag-evidence-card">
+            <div className="ag-card-heading"><div><span className="ag-mono">SOURCE PROVENANCE</span><h2>What Aegis can see</h2></div><span className={`ag-fault-label ${isFaultMode ? "on" : ""}`}>{isFaultMode ? "FAULT INJECTION ACTIVE" : "ALL AVAILABLE"}</span></div>
+            <div className="ag-source-list">{(assessment?.sources ?? (["weather", "rain", "air", "field"] as SourceId[]).map(id => ({ id, state: id === "field" ? "missing" : "live" }))).map((source: any) => { const info = sourceLabels[source.id as SourceId]; const Icon = info.icon; const disabledSource = source.state === "fault_injected"; return <div className={`ag-source ${source.state}`} key={source.id}><span className="ag-source-icon"><Icon size={18} /></span><div><strong>{info.label}</strong><p>{disabledSource ? "Deliberately omitted for resilience test" : source.state === "missing" ? "Not yet supplied by an operator" : info.sublabel}</p></div><em>{source.state === "live" ? "LIVE" : source.state === "operator" ? "FIELD" : source.state === "fault_injected" ? "HIDDEN" : "ABSENT"}</em></div>; })}</div>
+            <div className="ag-hard-mode"><div><span className="ag-mono">HARD MODE / EVIDENCE FAULT INJECTION</span><p>Deliberately remove one or two live inputs. Aegis must become less certain—not more decisive.</p></div><div className="ag-fault-controls">{(["weather", "rain", "air"] as SourceId[]).map(source => <button className={disabled.includes(source) ? "disabled" : ""} onClick={() => toggleFault(source)} key={source}>{disabled.includes(source) ? <EyeOff size={14} /> : <Zap size={14} />}{sourceLabels[source].label}</button>)}</div></div>
+          </article>
+        </section>
+
+        <section className="ag-live-grid">
+          <article className="ag-telemetry-card"><div className="ag-card-heading"><div><span className="ag-mono">LIVE SENSOR-CLASS EVIDENCE</span><h2>Environmental telemetry</h2></div><span className="ag-time">{live ? `${live.location.timezone}` : "CONNECTING"}</span></div>{liveQuery.isError ? <div className="ag-data-error"><TriangleAlert size={20} /><p>Live environmental sources did not respond. Aegis will not replace that absence with invented values.</p><button onClick={refresh}>Retry now</button></div> : <div className="ag-readings"><Reading icon={ThermometerSun} label="Temperature" value={live ? `${live.weather.temperature}°C` : "—"} detail={live ? `Feels ${live.weather.apparentTemperature}°C` : "Live source loading"} /><Reading icon={Wind} label="Wind gusts" value={live ? `${live.weather.windGusts} km/h` : "—"} detail={live ? `Sustained ${live.weather.windSpeed} km/h` : "Live source loading"} /><Reading icon={CloudRain} label="Rain chance" value={live ? `${live.rain.probability}%` : "—"} detail={live ? `Observed ${live.weather.precipitation} mm` : "Live source loading"} /><Reading icon={Gauge} label="US AQI" value={live ? String(live.air.usAqi) : "—"} detail={live ? `PM2.5 ${live.air.pm25} μg/m³` : "Live source loading"} /></div>}<p className="ag-source-note">Weather and atmospheric data are requested live per selected coordinate. Operator reports are persisted separately and never silently substituted for source data.</p></article>
+          <article className="ag-anomaly-card"><div className="ag-card-heading"><div><span className="ag-mono">CONTRADICTION SCAN</span><h2>What needs attention</h2></div><SlidersHorizontal size={20} /></div>{assessment?.anomalies?.length ? <div className="ag-anomaly-list">{assessment.anomalies.map((item: any) => <div className={`ag-anomaly ${item.severity}`} key={item.label}><AlertTriangle size={17} /><div><strong>{item.label}</strong><p>{item.explanation}</p></div><em>{item.severity}</em></div>)}</div> : <div className="ag-empty-scan"><ScanLine size={29} /><p>{isAuthenticated ? "No material contradiction is currently visible across the available evidence." : "No material contradiction is visible across the available live sources."}</p></div>}<div className="ag-provenance"><FileCheck2 size={16} /><span><strong>Decision receipts are immutable records.</strong> The recommendation and the human response are stored separately.</span></div></article>
+        </section>
+
+        {notice && <div className="ag-toast"><Check size={17} /> {notice}</div>}
+      </main>
     </div>
-  );
+
+    {showReport && <div className="ag-modal-backdrop" role="dialog" aria-modal="true"><form className="ag-modal" onSubmit={submitField}><button type="button" className="ag-close" onClick={() => setShowReport(false)}><X size={18} /></button><span className="ag-mono">GENUINE OPERATOR EVIDENCE</span><h2>Record a field fact</h2><p>Do not invent observations. This is a human-provided evidence source and will be attributed in Aegis’s next assessment.</p><label>Field condition<select value={fieldCondition} onChange={event => setFieldCondition(event.target.value as typeof fieldCondition)}><option value="unknown">Unknown / cannot verify</option><option value="clear">Clear and stable</option><option value="wet">Wet / degraded surface</option><option value="unsafe">Unsafe / immediate concern</option></select></label><label>Observed gusts, if measured (km/h)<input type="number" min="0" max="200" value={observedWind} onChange={event => setObservedWind(event.target.value)} placeholder="Optional" /></label><label>What did you observe?<textarea required minLength={4} maxLength={2000} value={fieldNote} onChange={event => setFieldNote(event.target.value)} placeholder="Describe the actual condition, obstruction, or safety concern." /></label><label>Optional site photo<input type="file" accept="image/jpeg,image/png,image/webp" onChange={selectFieldPhoto} /></label><p className="ag-photo-note"><Camera size={15} /> Aegis stores this image with your report and extracts a neutral visual observation. It never makes or executes the decision. JPEG, PNG, or WebP; up to 2.5 MB.</p>{fieldPhotoDataUrl && <div className="ag-photo-preview"><img src={fieldPhotoDataUrl} alt="Selected operator field evidence" /><div><strong>{fieldPhotoName}</strong><span>Ready for attributed extraction</span><button type="button" onClick={() => { setFieldPhotoDataUrl(null); setFieldPhotoName(null); }}>Remove photo</button></div></div>}{fieldPhotoError && <p className="ag-form-error">{fieldPhotoError}</p>}<button className="ag-primary modal-submit" disabled={fieldMutation.isPending}>{fieldMutation.isPending ? <><RefreshCw size={16} className="spin" /> Recording…</> : <><MessageSquareText size={16} /> Add attributed field fact</>}</button>{fieldMutation.error && <p className="ag-form-error">{fieldMutation.error.message}</p>}</form></div>}
+    {reviewOpen && assessment && <div className="ag-modal-backdrop" role="dialog" aria-modal="true"><div className="ag-modal ag-review-modal"><button className="ag-close" onClick={() => setReviewOpen(false)}><X size={18} /></button><span className="ag-mono">HUMAN-IN-THE-LOOP RECEIPT</span><h2>What will you do with Aegis’s recommendation?</h2><p>Aegis cannot execute this action. Your decision is stored separately from the recommendation with an evidence snapshot.</p><textarea value={reviewNote} onChange={event => setReviewNote(event.target.value)} placeholder="Optional operational note" maxLength={2000} /><div className="ag-review-actions"><button className="ag-ghost" onClick={() => submitReview("defer")} disabled={receiptMutation.isPending}>Defer decision</button><button className="ag-ghost" onClick={() => submitReview("request_check")} disabled={receiptMutation.isPending}>Request check</button><button className="ag-primary" onClick={() => submitReview("approve")} disabled={receiptMutation.isPending}>{receiptMutation.isPending ? "Recording…" : "Acknowledge recommendation"}</button></div>{receiptMutation.error && <p className="ag-form-error">{receiptMutation.error.message}</p>}</div></div>}
+  </div>;
 }
 
-function PublicStart() {
-  return <>
-    <section className="il-hero" style={{ backgroundImage: "linear-gradient(90deg, rgba(19,22,52,.95) 0%, rgba(19,22,52,.81) 42%, rgba(19,22,52,.18) 100%), url('/manus-storage/insightloop-learning-hero_d82e4561.jpg')" }}>
-      <div className="il-hero-copy"><span className="il-mono">STAMPERS TRACK 04 / ADAPTIVE LEARNING</span><h1>Don’t just mark the answer.<br /><em>Find the thought behind it.</em></h1><p>InsightLoop turns a learner’s real written answer into an explainable misconception signal, a focused next question, and a living learning path.</p><button className="il-cta" onClick={() => startLogin()}>Open your learning studio <ArrowRight size={17} /></button></div>
-      <div className="il-hero-stamp"><BrainCircuit size={24} /><span>NO SAMPLE PROGRESS</span><strong>Your path begins with your own response.</strong></div>
-    </section>
-    <section className="il-public-grid"><article><span>01</span><h2>Surface the misconception</h2><p>Analyses the method and reasoning in the learner’s own response, not simply right or wrong.</p></article><article><span>02</span><h2>Test the right next thing</h2><p>Creates one targeted probe designed to distinguish a fragile idea from a genuine understanding.</p></article><article><span>03</span><h2>Make growth legible</h2><p>Builds a private topic path that learners can revisit and teachers can review with permissioned access.</p></article></section>
-  </>;
-}
-
-function LearningStudio({ form, setForm, onSubmit, pending, error, notice, latest, paths, nextPath }: {
-  form: typeof emptyForm; setForm: React.Dispatch<React.SetStateAction<typeof emptyForm>>; onSubmit: (event: React.FormEvent) => void; pending: boolean; error?: string; notice: string | null; latest: any; paths: any[]; nextPath: any;
-}) {
-  const diagnosis = latest?.diagnosis as any | undefined;
-  return <>
-    <section className="il-studio-head"><div><span className="il-mono">LEARNING STUDIO / YOUR REAL WORK</span><h1>Show your reasoning.<br /><em>We’ll find the next foothold.</em></h1></div><div className="il-process-key"><span><i /> your response</span><span><i /> AI diagnosis</span><span><i /> next probe</span></div></section>
-    <section className="il-studio-grid">
-      <article className="il-submit-card"><div className="il-card-heading"><div><span className="il-mono">NEW RESPONSE</span><h2>What are you working on?</h2></div><PencilLine size={20} /></div><form onSubmit={onSubmit}>
-        <label>Topic<input value={form.topic} onChange={e => setForm(current => ({ ...current, topic: e.target.value }))} placeholder="e.g., Algebra — simplifying expressions" required maxLength={160} /></label>
-        <label>Question or task<textarea value={form.prompt} onChange={e => setForm(current => ({ ...current, prompt: e.target.value }))} placeholder="Paste the exact question you are trying to solve." required minLength={8} maxLength={2000} /></label>
-        <label>Your reasoning or answer<textarea className="il-answer" value={form.learnerAnswer} onChange={e => setForm(current => ({ ...current, learnerAnswer: e.target.value }))} placeholder="Write how you approached it. Partial work is useful." required minLength={8} maxLength={5000} /></label>
-        <div className="il-confidence"><div><span>Your confidence</span><strong>{form.selfConfidence}%</strong></div><input type="range" min="0" max="100" value={form.selfConfidence} onChange={e => setForm(current => ({ ...current, selfConfidence: Number(e.target.value) }))} /><div><span>Guessing</span><span>Very sure</span></div></div>
-        <button className="il-submit" disabled={pending}>{pending ? <><LoaderCircle size={17} className="spin" /> Reading your reasoning…</> : <><Sparkles size={17} /> Generate my next learning step</>}</button>
-        <p className="il-form-note"><ShieldCheck size={14} /> Your submission is stored in your private learning record. It is not used to train the model.</p>
-      </form></article>
-      <article className="il-diagnosis-card"><div className="il-card-heading"><div><span className="il-mono">LATEST INSIGHT</span><h2>{diagnosis ? "A reading of your reasoning" : "Waiting for your first response"}</h2></div><Lightbulb size={20} /></div>{diagnosis ? <><div className="il-mastery"><div className="il-ring" style={{ "--score": `${diagnosis.masteryEstimate * 3.6}deg` } as React.CSSProperties}><strong>{diagnosis.masteryEstimate}</strong><span>mastery</span></div><div><span className="il-mono">LIKELY MISCONCEPTION</span><h3>{diagnosis.misconceptionLabel}</h3><p>{diagnosis.misconceptionExplanation}</p></div></div><div className="il-feedback"><span className="il-mono">FEEDBACK</span><p>{diagnosis.feedback}</p></div><div className="il-confidence-band"><span>Model confidence</span><div><i style={{ width: `${diagnosis.confidence}%` }} /></div><strong>{diagnosis.confidence}%</strong></div></> : <div className="il-empty-insight"><Compass size={28} /><p>There is no fabricated profile here. Submit an actual answer and InsightLoop will create a first, reviewable insight.</p></div>}</article>
-    </section>
-    <section className="il-path-grid"><article className="il-next-card"><div className="il-card-heading"><div><span className="il-mono">NEXT ADAPTIVE PROBE</span><h2>{nextPath ? "Follow the thread" : "Your next question will appear here"}</h2></div><Target size={19} /></div>{nextPath ? <><div className="il-path-tag">{nextPath.targetSkill}</div><p className="il-next-question">“{nextPath.nextPrompt}”</p><div className="il-path-meta"><span>{nextPath.misconceptionLabel}</span><span className={`il-status ${nextPath.status}`}>{nextPath.status.replaceAll("_", " ")}</span></div></> : <p className="il-empty-copy">This space becomes useful after a learner shares real reasoning.</p>}</article><article className="il-history-card"><div className="il-card-heading"><div><span className="il-mono">YOUR LEARNING PATHS</span><h2>Topics with a next step</h2></div><BookOpenCheck size={19} /></div>{paths.length ? <div className="il-path-list">{paths.map(path => <div className="il-path-row" key={path.id}><span className="il-path-score">{path.masteryEstimate}</span><div><strong>{path.topic}</strong><p>{path.targetSkill}</p></div><ChevronRight size={17} /></div>)}</div> : <div className="il-empty-copy">Your progress will appear as a set of focused threads, not an arbitrary scorecard.</div>}</article></section>
-    {notice && <div className="il-toast"><ShieldCheck size={16} /> {notice}</div>}{error && <div className="il-error"><CircleHelp size={16} /> {error}</div>}
-  </>;
-}
-
-function TeacherLens({ data, loading }: { data: any; loading: boolean }) {
-  const statuses = data?.activePaths ?? [];
-  return <><section className="il-studio-head teacher"><div><span className="il-mono">TEACHER LENS / CONSENTED CLASS SIGNALS</span><h1>See the patterns.<br /><em>Keep the learner human.</em></h1><p>Only authenticated submissions in this workspace appear here. There is no seeded class data.</p></div></section><section className="il-teacher-metrics"><Metric label="Learner submissions" value={loading ? "—" : data?.summary.submissions ?? 0} icon={PencilLine} /><Metric label="Active learners" value={loading ? "—" : data?.summary.learners ?? 0} icon={Users} /><Metric label="Adaptive paths" value={loading ? "—" : statuses.reduce((sum: number, item: any) => sum + Number(item.total), 0)} icon={Activity} /></section><section className="il-teacher-grid"><article><div className="il-card-heading"><div><span className="il-mono">TOPIC SIGNALS</span><h2>Where learners are asking for help</h2></div><BookOpenCheck size={20} /></div>{data?.topicRows?.length ? <div className="il-topic-list">{data.topicRows.map((row: any, index: number) => <div key={row.topic}><span>{String(index + 1).padStart(2, "0")}</span><strong>{row.topic}</strong><em>{row.submissions} submission{Number(row.submissions) === 1 ? "" : "s"}</em></div>)}</div> : <div className="il-empty-insight"><Compass size={26} /><p>Analytics will appear after real learner submissions arrive. InsightLoop does not invent a class profile.</p></div>}</article><article><div className="il-card-heading"><div><span className="il-mono">PATH HEALTH</span><h2>What the learner paths need</h2></div><BrainCircuit size={20} /></div>{statuses.length ? <div className="il-status-list">{statuses.map((item: any) => <div key={item.status}><span className={`il-status ${item.status}`}>{item.status.replaceAll("_", " ")}</span><strong>{item.total}</strong></div>)}</div> : <div className="il-empty-copy">No active paths yet. Once learners submit work, this view will surface aggregated progress states.</div>}</article></section></>;
-}
-
-function Metric({ label, value, icon: Icon }: { label: string; value: string | number; icon: any }) { return <article className="il-metric"><span><Icon size={18} /></span><div><strong>{value}</strong><p>{label}</p></div></article>; }
+function Reading({ icon: Icon, label, value, detail }: { icon: typeof ThermometerSun; label: string; value: string; detail: string }) { return <div className="ag-reading"><span><Icon size={18} /></span><div><p>{label}</p><strong>{value}</strong><small>{detail}</small></div></div>; }

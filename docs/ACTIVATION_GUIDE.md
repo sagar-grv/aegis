@@ -1,25 +1,34 @@
-# InsightLoop — First-Use Activation Guide
+# Aegis — Operator First-Use Guide
 
-## Learner Activation
+## 1. Open the Decision Desk
 
-1. Open the deployed InsightLoop URL and select **Sign in**.
-2. Authenticate through the project’s OAuth flow.
-3. Open **Learning studio** and submit a real topic, the original question, your reasoning, and your confidence level.
-4. Wait for the server-side diagnosis. The latest insight and next adaptive probe will appear after the validated response is stored.
-5. Return later with a new response to continue or revise the topic path.
+Open the deployed Aegis URL and select an Indian operating site. The public desk retrieves live environmental evidence and can be used without an account for the evidence-only assessment.
 
-Learners should enter only educational content. Do not include personal identifiers or sensitive information in free-text work.
+## 2. Demonstrate Safe Refusal
 
-## Teacher Activation
+Select **Wind & weather** under **Hard mode / evidence fault injection**. Aegis should mark the weather source as hidden, recalculate the assessment, refuse an autonomous decision where confidence falls below policy, and name the smallest missing fact. Restore the source before any normal operation.
 
-The project owner is initially provisioned as `admin`. To authorise another user for Teacher Lens, promote that authenticated user to the `analyst` role in the database management interface. Teacher Lens then exposes aggregate counts and topics from the workspace; it does not seed or invent class activity.
+## 3. Authenticate an Operator
+
+Select **Operator sign in**. A successful OAuth session unlocks field evidence and human decision receipts. Authentication is required because these records must be attributed to the person who supplied or accepted the information.
+
+## 4. Record Genuine Field Evidence
+
+Use **Add field fact** to select the condition you personally observed, enter a real note, and optionally enter a gust value only when it was actually measured. Do not enter an invented observation merely to change the recommendation.
+
+An optional photo is limited to JPEG, PNG, or WebP under 2.5 MB. Submit only a scene image you are permitted to share. Avoid faces, personal data, private homes, vehicle registrations, and sensitive locations. The visual extractor returns neutral, visible context; it cannot decide whether to proceed.
+
+## 5. Record the Human Outcome
+
+Choose **Record human decision** only after reviewing the recommendation and available evidence. Choose acknowledgement, request-for-check, or deferral to reflect your actual decision. Aegis stores this receipt separately from its recommendation.
 
 ## Operational Checklist
 
 | Check | Expected result |
-|---|---|
-| OAuth login | Learner returns to the workspace with a private session. |
-| Submit response | The submission button displays a pending state until the structured diagnosis returns. |
-| Path creation | A current learning path appears for the submitted topic. |
-| Retry after a failure | No attempt is recorded when the diagnosis has not been validated. |
-| Teacher Lens | Available only to `admin` or `analyst` users and empty until genuine submissions exist. |
+| --- | --- |
+| Public live desk | Current environmental telemetry resolves for the selected coordinate. |
+| Hard mode | Evidence loss increases uncertainty and can produce an explicit refusal. |
+| OAuth sign-in | Operator returns to Aegis with attributed, protected actions available. |
+| Field report | A real operator note is saved and the evidence graph recalculates. |
+| Optional photo | Bounded supported image format is accepted; invalid or oversized files are rejected. |
+| Human receipt | A human action is retained separately from the recommendation snapshot. |

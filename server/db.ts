@@ -1,9 +1,10 @@
 import { count, desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { learningAttempts, learningPaths, type InsertUser, users } from "../drizzle/schema";
+import { aegisDecisionReceipts, aegisFieldReports, learningAttempts, learningPaths, type InsertUser, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import type { LearningDiagnosis } from "./learning";
 import { pathStatusFor } from "./learning";
+import type { AegisDecision, FieldReportInput } from "./aegis";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -107,4 +108,39 @@ export async function getTeacherAnalytics() {
   const activePaths = await db.select({ status: learningPaths.status, total: count() })
     .from(learningPaths).groupBy(learningPaths.status);
   return { summary: { submissions: Number(summary?.submissions ?? 0), learners: Number(summary?.learners ?? 0) }, topicRows, activePaths };
+}
+
+export async function saveAegisFieldReport(input: {
+  operatorUserId: number; latitude: number; longitude: number; siteLabel: string; fieldCondition: NonNullable<FieldReportInput["fieldCondition"]>; observedWindKph?: number | null; note: string; photoUrl?: string | null; visualObservation?: unknown | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Aegis evidence storage is temporarily unavailable.");
+  const result = await db.insert(aegisFieldReports).values({
+    operatorUserId: input.operatorUserId, latitude: String(input.latitude), longitude: String(input.longitude), siteLabel: input.siteLabel,
+    fieldCondition: input.fieldCondition, observedWindKph: input.observedWindKph ?? null, note: input.note,
+    photoUrl: input.photoUrl ?? null, visualObservation: input.visualObservation ?? null,
+  });
+  return Number(result[0].insertId);
+}
+
+export async function getLatestAegisFieldReport(operatorUserId: number, latitude: number, longitude: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Aegis evidence storage is temporarily unavailable.");
+  const rows = await db.select().from(aegisFieldReports)
+    .where(eq(aegisFieldReports.operatorUserId, operatorUserId)).orderBy(desc(aegisFieldReports.createdAt)).limit(8);
+  return rows.find(row => Math.abs(Number(row.latitude) - latitude) < 0.02 && Math.abs(Number(row.longitude) - longitude) < 0.02) ?? null;
+}
+
+export async function saveAegisDecisionReceipt(input: {
+  operatorUserId: number; latitude: number; longitude: number; siteLabel: string; decision: AegisDecision; confidence: number; riskScore: number;
+  operatorAction: "approve" | "request_check" | "defer"; operatorNote: string; evidenceSnapshot: unknown;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Aegis receipt storage is temporarily unavailable.");
+  const result = await db.insert(aegisDecisionReceipts).values({
+    operatorUserId: input.operatorUserId, latitude: String(input.latitude), longitude: String(input.longitude), siteLabel: input.siteLabel,
+    decision: input.decision, confidence: input.confidence, riskScore: input.riskScore, operatorAction: input.operatorAction,
+    operatorNote: input.operatorNote, evidenceSnapshot: input.evidenceSnapshot,
+  });
+  return Number(result[0].insertId);
 }

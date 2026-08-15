@@ -1,33 +1,45 @@
-# InsightLoop
+# Aegis — The Decision Refusal Engine
 
-> **Track 04 — AI-Powered Personalized Learning Ecosystem**
+> **STAMPERS National Hackathon 2026 · Track 01 — Artificial Intelligence**
 
-InsightLoop is a misconception-first learning workspace. Rather than recording whether an answer is right or wrong, it analyses a learner’s **own reasoning**, identifies a likely conceptual gap, creates one targeted next question, and stores the evolving topic path.
+**Aegis is an evidence-aware decision layer for exposed outdoor operations in India.** It does not pretend that every set of signals supports an answer. Instead, it combines live weather and atmospheric evidence with authenticated operator observations, makes the quality of evidence visible, and explicitly **refuses** an autonomous recommendation when a decisive fact is missing.
 
-No learner data is fabricated or seeded. The workspace starts empty and becomes useful when an authenticated learner submits real educational work.
+The centrepiece is a browser-visible **hard mode**. Removing a live source forces Aegis to recompute coverage and confidence, issue a refusal where appropriate, and request the *smallest fact that can unblock a decision*. This makes safe non-action a product capability, rather than a generic disclaimer.
 
-## What Works in Production
+| Submission dimension | Aegis implementation |
+| --- | --- |
+| **Novelty** | Treats refusal as a primary AI outcome: evidence loss makes the system *less* decisive, not more performative. |
+| **Real-world data** | Pulls live coordinate-based weather, precipitation probability, and air-quality signals from Open-Meteo; it does not seed environmental data. [1] [2] |
+| **Hard-mode fit** | A one-click controlled evidence loss hides 25%–50% of the evidence graph and visibly triggers the abstention policy. |
+| **Explainability** | Shows source provenance, confidence, evidence coverage, operational exposure, anomalies, and the smallest missing fact. |
+| **Human accountability** | Authenticated operators may supply attributable text, a measured gust value, and an optional field photo; a final human decision receipt is stored separately from the recommendation. |
 
-| Track requirement | Operational implementation |
-|---|---|
-| Student knowledge modelling | Persistent learner-topic paths store a target skill, misconception, mastery estimate, and status. |
-| Adaptive difficulty | Each validated response creates a next diagnostic probe designed for that learner’s reasoning. |
-| Personalised paths | Each learner has a separate current path for every topic. |
-| Automatic question generation | `gpt-5-mini` generates structured next probes server-side. |
-| Weak-topic detection | Teacher Lens groups real submissions by topic. |
-| Teacher analytics | Authorised teachers see aggregate real-submission counts and path states. |
+## What Works
 
-## Data Flow
+Aegis uses four India-based operating sites for a realistic, coordinate-driven desk: Bengaluru’s Cubbon Park, New Delhi’s India Gate, Mumbai’s Oval Maidan, and Hyderabad’s Tank Bund. A site selection calls the public live-evidence procedure; no client-side placeholder replaces a failed upstream response.
 
-1. A learner signs in through the built-in OAuth flow.
-2. They submit a topic, original task, reasoning, and self-confidence.
-3. The protected backend requests a strict JSON diagnosis from `gpt-5-mini`.
-4. The response is schema-validated before an attempt and adaptive path are saved in MySQL.
-5. The learner sees the next probe; a role-gated teacher sees aggregate signals only.
+| Evidence stream | Retrieval or input | What Aegis uses |
+| --- | --- | --- |
+| **Wind & weather** | Open-Meteo Forecast API | Current temperature, apparent temperature, precipitation, sustained wind, gusts, and weather code. [1] |
+| **Rain likelihood** | Open-Meteo Forecast API | Short-range hourly precipitation probability. [1] |
+| **Air exposure** | Open-Meteo Air Quality API | PM2.5, PM10, nitrogen dioxide, ozone, and consolidated US AQI. [2] |
+| **Field observation** | Authenticated operator | Human condition label, real note, optionally measured gusts, and an optional photo-derived *visual observation*. |
 
-InsightLoop does not automatically grade, diagnose a learner, or claim to measure identity, intelligence, or future potential. AI feedback remains visible, reviewable educational guidance.
+The optional photo workflow accepts a JPEG, PNG, or WebP image of up to 2.5 MB from the signed-in operator. The original image is stored against that operator’s report. Server-side `gemini-3-flash-preview` produces a constrained, schema-validated visual observation of scene conditions; it is attributed context only. It cannot decide, approve, restrict, or execute an operation.
 
-## Running Locally
+> **Safety boundary:** Aegis is a decision-support and evidence-refusal interface. It does not control people, vehicles, emergency services, or field equipment. A human operator remains responsible for every operational action.
+
+## Decision Policy
+
+The decision engine is deterministic and inspectable. Coverage counts available live or operator evidence across weather, rain, air, and field sources. A missing decisive source reduces confidence. High gusts, poor air quality, high rain likelihood, unsafe field conditions, and a material disagreement between measured and forecast gusts contribute explainable anomalies and operational exposure.
+
+| Result | Trigger | Interface response |
+| --- | --- | --- |
+| **Proceed** | Adequate evidence and no high-severity condition | Continue normal monitoring and refresh on material change. |
+| **Restrict** | Adequate evidence with elevated exposure or a high-severity anomaly | Restrict exposed activity and require a human acknowledgement. |
+| **Refuse** | Confidence below 60%, or weather and field evidence are both absent | Decline an autonomous operational recommendation and request the smallest missing fact. |
+
+## Quick Start
 
 ```bash
 pnpm install
@@ -36,21 +48,27 @@ pnpm test
 pnpm build
 ```
 
-## Key Files
+The full stack uses React 19, TypeScript, Vite, Express, tRPC, Drizzle, MySQL, built-in OAuth, object storage, and server-side model calls. Environment credentials are supplied by the managed runtime; do **not** commit `.env` files or substitute browser-side secrets.
 
-| File | Purpose |
-|---|---|
-| `client/src/pages/Home.tsx` | Learner and Teacher Lens workspace. |
-| `server/learning.ts` | Structured AI diagnosis and safeguard logic. |
-| `server/db.ts` | Attempts, paths, and aggregate analytics. |
-| `server/routers.ts` | Protected learner and teacher procedures. |
-| `docs/ACTIVATION_GUIDE.md` | First-use steps for learners and teachers. |
-| `docs/VALIDATION.md` | Build, test, and live model-contract record. |
+## Validation Snapshot
 
-## Privacy Notice
+The current validation record confirms a live Bengaluru public assessment, a hard-mode weather-source omission that produced a refusal at 50% coverage and 40% confidence, persistence of an operator field report and human review receipt through a self-cleaning integration probe, and a clean database after that probe. The automated suite contains **16 passing tests**, including five Aegis-specific decision and field-photo input tests. See [Aegis validation](docs/AEGIS_VALIDATION.md).
 
-Learners should submit only educational work. Do not include personal identifiers, medical information, financial details, or other sensitive content in the free-text response.
+## Project Map
 
-## Hosting Boundary
+| Path | Responsibility |
+| --- | --- |
+| `client/src/pages/Home.tsx` | Decision desk, source ledger, hard mode, field-evidence modal, and human-review receipt UI. |
+| `server/aegis.ts` | Live Open-Meteo retrieval and deterministic confidence, refusal, and risk policy. |
+| `server/aegisPhoto.ts` | Photo input guardrails and structured visual-observation extraction. |
+| `server/routers.ts` | Public evidence and protected authenticated Aegis procedures. |
+| `server/db.ts` | Field-report and immutable decision-receipt persistence helpers. |
+| `docs/PROJECT_DOCUMENTATION.md` | Architecture, operating policy, privacy boundaries, and test plan. |
+| `docs/DEMO_SCRIPT.md` | Feature-by-feature live demo script. |
+| `docs/SUBMISSION_LINKS.md` | Repository, deployment, and video link register. |
 
-The repository can be previewed on Vercel as a browser-interface build. The **full operational workspace**—OAuth, protected server routes, database persistence, and server-side AI credentials—runs in the managed project runtime, where these secrets are provisioned. Do not represent a static external preview as a production learner-record system unless its equivalent server environment and secrets have been configured.
+## References
+
+[1] [Open-Meteo Weather Forecast API](https://open-meteo.com/en/docs)
+
+[2] [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api)

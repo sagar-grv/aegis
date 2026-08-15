@@ -120,5 +120,36 @@ export const learningPaths = mysqlTable("learning_paths", {
   learnerUpdatedIdx: index("learning_paths_learner_updated_idx").on(table.learnerUserId, table.updatedAt),
 }));
 
+/** Genuine operator observations supplied through the Aegis Live Decision Desk. */
+export const aegisFieldReports = mysqlTable("aegis_field_reports", {
+  id: int("id").autoincrement().primaryKey(),
+  operatorUserId: int("operatorUserId").notNull(),
+  latitude: varchar("latitude", { length: 24 }).notNull(),
+  longitude: varchar("longitude", { length: 24 }).notNull(),
+  siteLabel: varchar("siteLabel", { length: 140 }).notNull(),
+  fieldCondition: mysqlEnum("fieldCondition", ["clear", "wet", "unsafe", "unknown"]).notNull(),
+  observedWindKph: int("observedWindKph"),
+  note: text("note").notNull(),
+  photoUrl: varchar("photoUrl", { length: 512 }),
+  visualObservation: json("visualObservation"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => ({ operatorCreatedIdx: index("aegis_field_operator_created_idx").on(table.operatorUserId, table.createdAt) }));
+
+/** Human confirmation is recorded separately from the recommendation, preserving accountability. */
+export const aegisDecisionReceipts = mysqlTable("aegis_decision_receipts", {
+  id: int("id").autoincrement().primaryKey(),
+  operatorUserId: int("operatorUserId").notNull(),
+  latitude: varchar("latitude", { length: 24 }).notNull(),
+  longitude: varchar("longitude", { length: 24 }).notNull(),
+  siteLabel: varchar("siteLabel", { length: 140 }).notNull(),
+  decision: mysqlEnum("decision", ["proceed", "restrict", "refuse"]).notNull(),
+  confidence: int("confidence").notNull(),
+  riskScore: int("riskScore").notNull(),
+  operatorAction: mysqlEnum("operatorAction", ["approve", "request_check", "defer"]).notNull(),
+  operatorNote: text("operatorNote").notNull(),
+  evidenceSnapshot: json("evidenceSnapshot").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => ({ operatorCreatedIdx: index("aegis_receipt_operator_created_idx").on(table.operatorUserId, table.createdAt) }));
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;

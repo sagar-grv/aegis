@@ -38,3 +38,25 @@
 - [x] Correct the Vercel build so it serves the application rather than exposing the bundled server source.
 - [x] Document the hosting boundary: full auth, database, and model actions require the project’s managed runtime secrets.
 - [x] Exercised and documented the browser-visible learner failure-and-retry state without persisting a record.
+- [x] Reassess the supplied STAMPERS 2026 problem statements against real-world deployability and novelty.
+- [x] Present the three strongest problem-statement recommendations with practical data and integration paths.
+- [x] Obtain the user’s selection before starting the replacement solution build.
+- [ ] Build and live-test the selected solution without fabricated operational data.
+- [ ] Publish the selected solution to a dedicated GitHub repository, deploy the appropriate interface to Vercel, and provide a tested demo video.
+- [x] Score every STAMPERS track only on competitive novelty, hard-mode fit, implementation credibility, and demo impact.
+- [x] Present a fresh top-three shortlist without relying on earlier project directions or personal-data constraints.
+- [x] Obtain the user’s choice for the competition-first build direction.
+- [x] Define the Aegis operating scenario, live evidence sources, and trust/refusal policy.
+- [x] Replace the current application with Aegis’s real-time evidence ingestion and decision-refusal engine.
+- [x] Implement the 20–30% missing-data hard mode, smallest-missing-fact prompt, and human-review actions.
+- [x] Validate live data retrieval, decision-state transitions, error handling, and evidence provenance.
+- [ ] Publish Aegis to a dedicated repository, Vercel interface preview, and feature-tested walkthrough video.
+- [x] Finalize Aegis Live Decision Desk's outdoor-operations scenario, source reliability policy, and refusal thresholds.
+- [x] Add live weather and air-quality retrieval with source timestamps and provenance records.
+- [ ] Add genuine operator field-text and optional photo-evidence intake without fabricated evidence.
+- [x] Add the 30% evidence fault-injection control, smallest-missing-fact request, and human-review receipt.
+- [ ] Replace the current application and documentation with the completed Aegis Track 01 submission package.
+- [ ] Add authenticated optional field-photo storage and constrained visual-observation extraction without allowing the model to make or execute an operational decision.
+- [ ] Live-test the authenticated Aegis text-report and human-decision receipt workflows using the presenter’s own account and verify the persisted outcome in the interface.
+- [ ] End-to-end validate a privacy-safe real field-photo upload, server-side storage, strict visual-observation extraction, and visible operator confirmation without fabricating field evidence.
+- [ ] Replace remaining legacy InsightLoop documentation and remove obsolete Aegis submission links before final delivery.

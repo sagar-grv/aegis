@@ -1,26 +1,28 @@
-# InsightLoop — Validation Record
+# Aegis — Validation Record
 
-| Check | Result |
-|---|---|
-| TypeScript after InsightLoop rewrite | Passed with zero reported errors. |
-| Production build | Passed with `pnpm build`. |
-| Unit tests | Passed: logout, diagnosis schema validation, bounded-score rejection, path-status mapping, unauthenticated/forbidden rejection, malformed input rejection, plus mocked authenticated learner workspace, submission persistence, and authorised teacher success paths. |
-| Live model catalogue | Queried before selecting the production model. |
-| Live structured AI contract | Passed. A non-persistent `gpt-5-mini` probe returned all eight required diagnosis fields with bounded scores. |
-| Full-stack integration probe | Passed. A temporary account invoked the live diagnosis path, persisted one attempt and adaptive path, appeared in teacher aggregates, and was then deleted; a database query confirmed zero temporary probe users remained. |
-| Diagnosis failure safety | Passed. A simulated provider failure is returned to the protected mutation and does not call the persistence layer; the learner interface displays the resulting error message. |
-| Browser failure and retry state | Passed. A development-only non-persistent probe displayed the learner-facing error banner while leaving the form available for retry; the probe was removed after verification. |
-| Learner data seeding | None. Empty states remain empty until an authenticated user submits work. |
+## Verified Checks
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Production build | Pass | `pnpm build` completed after the public assessment clarification and the field-photo feature. |
+| Automated tests | Pass | `pnpm test` completed with 16 passing tests across six suites. |
+| Live public evidence | Pass | The browser resolved current Bengaluru weather, gust, precipitation probability, air-quality, timezone, provenance, and a public recommendation. |
+| Hard-mode evidence loss | Pass | Hiding `Wind & weather` produced 50% coverage, 40% confidence, explicit refusal, and a fresh on-site wind-gust request. |
+| Persistence probe | Pass | The self-cleaning full-stack integration probe retrieved live evidence, saved a temporary field report and review receipt, then verified cleanup. |
+| Field-photo input safety | Pass | A dedicated unit suite accepts bounded JPEG input and rejects unsupported MIME types and oversized data. |
+| Live model catalog | Pass | The current catalog was checked before selecting the multimodal `gemini-3-flash-preview` visual-observation model. |
 
 ## Independent Validation Boundary
 
-The first user-owned submission requires an authenticated learner account. InsightLoop includes a documented activation sequence for that moment, but does not impersonate an owner or leave fabricated learner data in the workspace. The system itself has been tested with an automatically cleaned temporary integration probe, isolated positive and negative protected-route tests, and a live structured-model contract probe.
+The browser-visible protected-workflow test is currently blocked by a `403` response from the hosted OAuth entry point. The application’s protected routes, field-report persistence, receipt persistence, and photo-input guardrails are covered by implementation, protected-route tests, and the self-cleaning integration probe; no user account was impersonated and no fabricated operational record remains in the database.
 
-| Evaluation criterion | Evidence |
-|---|---|
-| Innovation | Misconception-linked learning thread and next diagnostic probe. |
-| Technical implementation | Authenticated full-stack flow, strict AI schema, MySQL persistence, role-gated analytics. |
-| Problem solving | Distinguishes reasoning patterns, not only answer correctness. |
-| User experience | Calm learner flow, visible confidence, explainable feedback, no fabricated activity. |
-| Scalability | Structured data model and role boundary support institutional extensions. |
-| Presentation | Live app, documentation, activation guide, and recording script. |
+The optional photo path validates the file boundary locally and applies strict server-side schema validation to the model output. Its first real photo submission must use a presenter’s privacy-safe, genuine scene image and is documented in the [activation guide](ACTIVATION_GUIDE.md) and [demo script](DEMO_SCRIPT.md).
+
+| Evaluation criterion | Aegis evidence |
+| --- | --- |
+| Innovation and creativity | Refusal is a first-class result; the system makes missing evidence operationally visible. |
+| Technical implementation | Live APIs, deterministic policy, authenticated reporting, persistence, object storage, and constrained visual extraction. |
+| Problem solving | The smallest-missing-fact prompt turns an unsafe unknown into a bounded human task. |
+| User experience | Provenance, coverage, exposure, anomaly scan, and human actions share one responsive decision desk. |
+| Scalability | Source adapters, typed procedures, structured records, and explicit decision policy separate concerns. |
+| Presentation | The live hard-mode demonstration is directly recordable through the documented walkthrough. |
