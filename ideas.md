@@ -1,67 +1,67 @@
-# CrisisGrid Design Brainstorm
+# VeilTrace Design Brainstorm
 
 ## Three Directions
 
-### Signal in the Storm
-**Very Brief Intro:** A field-operations command surface inspired by emergency paper maps, radio logs, and weathered infrastructure. It uses restrained colour, precise typography, and dynamic layers to make urgency legible without visual panic.
+### Evidence Under Glass
+**Very Brief Intro:** A forensic command surface that treats every suspicious transaction as an inspectable piece of evidence. Cool ink, mineral paper, and decisive orange markers turn fraud analysis into a transparent investigative process.
 
-**Probability:** 0.07
+**Probability:** 0.06
 
-### Civic Relay
-**Very Brief Intro:** A warm, community-first public-service interface that centres citizens and mutual aid rather than control-room density. Soft daylight tones and generous surfaces make an intimidating emergency system feel approachable.
+### The Counterfeit Ledger
+**Very Brief Intro:** A contemporary editorial take on old accounting books and modern network forensics. High-density numbers live alongside large evidence annotations, so the interface feels analytical rather than conventionally “fintech.”
 
-**Probability:** 0.04
+**Probability:** 0.03
 
-### Night Shift Mesh
-**Very Brief Intro:** A midnight control-room environment with bright status signals, dense information tiles, and live-data motion. It frames response coordination as a resilient digital network working through the night.
+### Signal Shadow
+**Very Brief Intro:** A low-light fraud observatory where legitimate activity is a stable field and coordinated behaviour emerges as a precise, slowly moving shadow. The tone is watchful and intelligent, never alarmist.
 
-**Probability:** 0.09
+**Probability:** 0.08
 
-## Chosen Direction: Signal in the Storm
+## Chosen Direction: Evidence Under Glass
 
 ### Design Movement
-**Signal in the Storm** draws from Swiss information design, emergency incident-command boards, and topographic field maps. It is a calm operational interface: a tool that helps a coordinator reason about incomplete information, rather than a decorative disaster dashboard.
+**Evidence Under Glass** combines forensic case-board language, International Typographic Style, and archival data visualisation. It does not present fraud as an abstract score; it presents it as a claim supported by inspectable evidence.
 
 ### Core Principles
-1. **Calm clarity under pressure.** Information is grouped around actions, confidence, and consequences—not visual novelty.
-2. **Explain every recommendation.** Allocation and routing decisions retain a visible rationale and uncertainty cue.
-3. **Physical map language, digital resilience.** Contour patterns, coordinates, and paper-like annotation details make the system feel connected to place and field operations.
-4. **Contrast with purpose.** Life-safety risk uses a carefully limited signal red; safe and confirmed states use a deep emergency teal.
+1. **Suspicion must be legible.** Every alert reveals the evidence that raised it, the uncertainty it retains, and the counterfactual that could clear it.
+2. **Networks before isolated events.** Visual priority belongs to relationships—shared devices, timing rhythm, account hops, and coordinated behaviour.
+3. **Precision over spectacle.** The interface feels financially serious through disciplined typography, deep hierarchy, and exact labels rather than glassmorphism or generic fintech gradients.
+4. **Protect legitimate customers.** False-positive reduction is a first-class visible control rather than a buried technical claim.
 
 ### Color Philosophy
-The base is a warm, off-white map stock that reduces control-room fatigue and helps emergency colours carry meaning. Graphite anchors typography and structure, a forest-teal indicates verified operating capacity, signal red indicates critical action, and high-visibility chartreuse is reserved for route and allocation emphasis. The result is sober, human, and easily interpretable instead of technologically theatrical.
+The foundation is archival stone (#EDE9E0) and inky charcoal (#1D2529), chosen to make financial evidence feel grounded and durable. Burnt vermilion (#D8523B) marks suspected coordinated fraud, signal teal (#176D68) marks corroborated information, and muted gold (#C09244) marks review-required ambiguity. Colour never replaces words or score explanations.
 
 ### Layout Paradigm
-The app uses an **operational strip** rather than a symmetrical dashboard. A fixed left rail holds the mission context and mode controls; the central territory plane shows the evolving crisis map; a right-side decision ledger exposes priorities, confidence, and actions. On smaller screens, these planes become a sequential field briefing rather than miniature panels.
+The page is a **case table**: a narrow evidence rail on the left, a dominant relationship graph in the centre, and an expandable receipt on the right. The horizontal narrative runs from raw signal, through network evidence, to a reviewable decision. On mobile, this becomes a case dossier in that same sequence.
 
 ### Signature Elements
-1. **Coordinate ribbons:** small coordinate and timestamp notations recur beside high-value data.
-2. **Risk contours:** thin, translucent topographic arcs appear behind the map and hero surfaces.
-3. **Decision receipts:** every suggested action includes its score, source inputs, and a plain-language explanation.
+1. **Evidence ribbons:** compact numbered annotations that physically connect claims to graph events.
+2. **Camouflage index:** a unique two-axis measure that separates a transaction’s individual normality from the collective abnormality of its network.
+3. **Counterfactual strip:** a plain-language notice explaining what would lower the risk score.
 
 ### Interaction Philosophy
-Interactions should feel deliberate and field-ready. Users may switch network availability, accept allocations, send an SOS, and inspect a zone. Each action updates the confidence layer and provides a concise response-log entry so the impact is traceable.
+Investigation is progressive disclosure. Selecting an account expands only the evidence necessary to justify the risk rating; switching to a verified device or weakening the network correlation visibly adjusts the model’s recommendation. The product does not ask users to trust hidden intelligence.
 
 ### Animation
-Motion is sparse and purposeful. Risk contours drift very slowly only when reduced motion is not preferred. New SOS alerts enter with a short opacity-and-translate transition, critical route paths draw into place, and decisions update with a brief ledger flash. All UI transition timing is 120–240ms with crisp cubic-bezier easing; no decorative looping spinners or exaggerated scale effects are used.
+Network edges activate in short, purposeful sequences to reveal a money-movement path. Evidence ribbons use a 160ms opacity-and-translate arrival. A verified counterfactual settles an alert with a brief colour transition, never a celebratory animation. All motion respects reduced-motion preferences.
 
 ### Typography System
-**Space Grotesk** supplies the technical, high-legibility interface voice, with **IBM Plex Mono** for coordinates, system logs, scores, and metadata. Headlines use compact uppercase tracking; primary messages stay sentence case for readable, humane instruction. The hierarchy favours large operational numbers, then clear action titles, then support text.
+**DM Sans** provides sturdy, editorially compact interface text; **IBM Plex Mono** anchors values, timestamps, account IDs, and evidence references. Large transaction figures use tabular-looking mono, while headings remain concise, sentence case, and tightly tracked.
 
 ### Brand Essence
-**CrisisGrid is a resilient command layer for teams coordinating response when the map, network, and minutes are all failing.**
+**VeilTrace reveals coordinated fraud that hides behind legitimate-looking transactions.**
 
-Personality: **steadfast, lucid, accountable**.
+Personality: **forensic, vigilant, fair**.
 
 ### Brand Voice
-The voice is succinct, evidence-aware, and action-oriented. It avoids alarmism, vague claims, and bureaucratic filler.
+The voice is calm, specific, and evidence-first. It avoids accusing people; it identifies patterns and requests review.
 
-Example headline: “Decide with what you know. Protect where it matters.”
+Example headline: “The transaction looked normal. The network did not.”
 
-Example microcopy: “Route 04 remains viable through the cached road graph. Confidence: 78%.”
+Example microcopy: “Risk is driven by a shared device relay and 11-minute beneficiary convergence—not the payment amount alone.”
 
 ### Wordmark and Logo
-The logo is a bold, text-free **four-cell relay mark**: four offset rounded grid cells form a directional cross, with one cell bridged by a small link to represent communication continuity during infrastructure failure. The mark should work in solid forest-teal against map stock and render clearly at favicon scale.
+The logo is a bold text-free **split fingerprint ring**: three offset arcs form a circular trace with one small linked node outside the ring. It represents a behavioural signature breaking into a hidden relationship network.
 
 ### Signature Brand Color
-**Relay Teal — #005E57.** A deep, ownable teal that signifies verified capability, continuity, and coordinated action.
+**Trace Vermilion — #D8523B.** A precise, unmistakable alert colour that signals a pattern requiring investigation, not a claim of guilt.

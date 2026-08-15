@@ -1,30 +1,34 @@
-# CrisisGrid — Validation Record
+# VeilTrace — Validation Record
 
 ## Build Validation
 
-The production build was executed successfully with `pnpm build`. Vite completed the bundle, and the server bundle completed without TypeScript or compile errors. The build output reported a non-blocking large-chunk advisory, which does not affect functional deployment of this prototype.
-
-## Visual Validation
-
-The dashboard was reviewed at desktop and mobile sizes. The desktop review confirmed the intended **Signal in the Storm** hierarchy: territory map first, transparent priority receipt second, then resource capacity and incoming signal detail. A separate mobile review confirmed that the full workflow becomes a readable vertical field briefing without horizontal clipping.
+`pnpm build` completed successfully after the Track 05 rebuild. The Vite bundle and server bundle completed without TypeScript or compile errors. The output contains a non-blocking bundle-size advisory only.
 
 ## Interaction Validation
 
-| Interaction | Expected result | Result |
+| Scenario | Expected outcome | Result |
 |---|---|---|
-| Switch Primary Uplink to Mesh Fallback | Network state, explanation, route confidence, and decision log update. | Passed. |
-| Select a different risk zone | Priority score, location, people-affected estimate, confidence, and event log update. | Passed. |
-| Approve a dispatch | Button changes to Unit assigned; decision log records route and destination; rescue-boat capacity reduces. | Passed. |
-| Queue an SOS report | Form confirms receipt; browser-side local SOS count increments. | Passed. |
-| Responsive layout | Full dashboard remains readable at desktop and 390px mobile width. | Passed. |
+| Baseline screening | Transactions remain individually normal; score remains 41; Camouflage Index remains 18. | Passed. |
+| Unmask coordinated pattern | Graph ring activates; score rises to 93; recommendation changes to Hold & review. | Passed. |
+| Counter-evidence | Verified KYC lowers risk to 58, raises false-positive guard to 88, and preserves unresolved signals. | Passed. |
+| Account / evidence selection | Selecting a graph or evidence item updates the visible graph focus. | Passed. |
+| Stream control | Live stream status visibly switches between analysing and paused. | Passed. |
 
-## Hackathon Compliance Check
+## Responsive Validation
 
-| Requirement | Status | Notes |
-|---|---|---|
-| GitHub repository | Ready | Repository creation and remote push are part of the final delivery workflow. |
-| Video demo | Script ready | `docs/DEMO_SCRIPT.md` provides the exact recording flow; a public video link must be created after recording. |
-| Accessible source code | Ready | Project builds cleanly with `pnpm build`. |
-| Clear project explanation | Ready | README and `docs/PROJECT_DOCUMENTATION.md` are included. |
-| Problem, solution, technical approach, features, impact | Ready | Covered in project documentation. |
-| Simulation disclosure | Ready | Explicitly labelled in the product UI and repository documentation. |
+Desktop review confirmed the intended case-table narrative: evidence ledger, network graph, then decision receipt. A mobile review at 390px confirmed the same narrative becomes a vertical case dossier without horizontal overflow or missing controls.
+
+## Evaluation-Criteria Alignment
+
+| Criterion | Evidence |
+|---|---|
+| Innovation and creativity | Camouflage Index plus counterfactual-based false-positive guard. |
+| Technical implementation | Stateful risk model, mode transitions, SVG graph, interactive evidence and analyst flows. |
+| Problem solving | Focuses specifically on coordinated fraud designed to bypass isolated-transaction rules. |
+| User experience | Evidence-first hierarchy, responsive layout, legible risk semantics, clear human-review boundary. |
+| Scalability | Architecture documents a future path to server-side graph, identity, payment, and device integrations. |
+| Presentation | Live site, visual demo, project documentation, and narrated demo script are provided. |
+
+## Simulation Disclosure
+
+All data and outcomes are fictional. The project makes no claim that it can identify real fraud without a governed, audited, privacy-preserving production architecture.

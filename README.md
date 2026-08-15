@@ -1,93 +1,88 @@
-# CrisisGrid
+# VeilTrace
 
-> **Resilient crisis-response coordination when the map, the network, and the minutes are all failing.**
+> **The transaction looked normal. The network did not.**
 
-**CrisisGrid** is a front-end prototype for **STAMPERS National Hackathon 2026, Track 06: Autonomous Crisis Response & Resource Coordination**. It demonstrates how emergency coordinators can combine heterogeneous signals, prioritise affected areas, explain resource-allocation recommendations, keep citizen reports available during partial network failure, and retain meaningful operational context when live infrastructure degrades.
+**VeilTrace** is a submission-ready prototype for **STAMPERS National Hackathon 2026, Track 05: Real-Time Financial Fraud & Risk Intelligence**. It detects coordinated fraud that hides behind legitimate-looking transactions by examining the relationship pattern around payments—not only the payment itself.
 
-The current project intentionally uses a clearly labelled **simulated monsoon-flood scenario**. It is a hackathon prototype, not an operational emergency-management system, and it must not be used to make real-world dispatch or medical decisions.
+The project uses an intentionally simulated fraud network, as requested by the challenge hard mode. Every payment, account identifier, relationship, device, score, and outcome is fictional. VeilTrace is a decision-support demonstration, not an operational fraud engine and not a system for determining guilt.
 
 | Submission item | Link |
 |---|---|
 | Live prototype | [stampers-crisisgrid.vercel.app](https://stampers-crisisgrid.vercel.app) |
-| Demo walkthrough | [Watch the video demo](https://files.manuscdn.com/user_upload_by_module/session_file/91236325/DoMzKNkGELeZUkUq.mp4) |
+| Video walkthrough | [Watch the VeilTrace demo](https://files.manuscdn.com/user_upload_by_module/session_file/91236325/FgORdAnXQloqgPYI.mp4) |
 | Submission index | [`docs/SUBMISSION_LINKS.md`](docs/SUBMISSION_LINKS.md) |
 
-## The Problem
+## Why VeilTrace Is Different
 
-Large-scale emergencies create an information problem before they become a logistics problem. Reports arrive from citizens, sensors, responders, and infrastructure systems at different levels of reliability. Connectivity can fail precisely when it is needed most. A command interface that merely displays a map does not solve the hard question: **which location deserves limited resources first, and why?**
+Traditional fraud screening often asks whether one transaction appears abnormal. Sophisticated fraud networks exploit this limitation: they deliberately use ordinary amounts, realistic merchant categories, and customer-like timing. VeilTrace addresses the harder question: **does a group of ordinary-looking transactions become suspicious when viewed as a coordinated network?**
 
-CrisisGrid turns that question into a reviewable decision workflow. It presents simulated evidence, a visible priority receipt, a human-approval gate, route confidence, resource capacity, and a fallback communications mode in one coordinated view.
+Its core innovation is the **Camouflage Index**. This measure separates individual normality from collective abnormality, allowing an investigator to see where seemingly harmless activity masks shared devices, beneficiary convergence, and repeated timing patterns.
 
-## What Makes It Novel
-
-The project’s differentiator is the **Decision Receipt**. Rather than returning an opaque “high priority” label, CrisisGrid breaks every recommendation into weighted, human-readable contributing factors:
-
-| Decision component | Demonstrated purpose |
+| Evidence layer | What VeilTrace makes visible |
 |---|---|
-| Life-safety exposure | Makes potential human impact the leading factor. |
-| Water-rise velocity | Elevates urgency when conditions are deteriorating quickly. |
-| Route accessibility | Avoids recommending resources that cannot credibly reach the location. |
-| Report reliability | Shows how confidence changes when evidence is incomplete or degraded. |
-| Human confirmation | Prevents automatic dispatch across a safety threshold. |
+| Individual normality | Payment amounts remain inside expected personal ranges. |
+| Device relay | Multiple accounts authenticate from the same device fingerprint. |
+| Beneficiary convergence | Fragmented payments reassemble along an otherwise unrelated path. |
+| Timing heartbeat | Payments recur at an implausibly regular cadence. |
+| Counter-evidence | Verified relationships can lower risk and protect legitimate customers. |
 
-This model supports an important operational principle: **automation should make a recommendation inspectable, not make human responsibility invisible.**
+## The Prototype Experience
 
-## Core Capabilities
+The interface follows an **evidence under glass** principle. The left column is an evidence ledger; the centre is a relationship graph; the right column is a decision receipt. A reviewer can unmask a hidden ring, inspect why risk rises, apply verified KYC counter-evidence, and observe the recommendation adjust from “Hold & review” to “Allow with watch.”
 
-| Hackathon requirement | CrisisGrid implementation |
+This is not a static dashboard. The scenario shows a complete investigation loop:
+
+1. The baseline view exposes only individually ordinary transactions and a low-visibility risk score.
+2. **Unmask pattern** reveals the coordinated relationship ring, raises the Camouflage Index to 91/100, and produces a reviewable hold recommendation.
+3. **Add verified KYC evidence** introduces a legitimate shared-device explanation, lowers the score, strengthens the false-positive guard, and leaves only the unresolved risk factors under enhanced monitoring.
+
+## Track-Requirement Coverage
+
+| STAMPERS requirement | VeilTrace implementation |
 |---|---|
-| Real-time crisis mapping | Interactive territory plane with four selectable risk zones, risk scores, simulated incident positions, and viable-route overlays. |
-| Dynamic risk-zone detection | Selecting a zone updates its priority score, potential isolation count, confidence, and decision log. |
-| Resource allocation | A human-approved dispatch reduces available rescue-boat capacity and logs the destination and route. |
-| Emergency route optimisation | The map displays primary and alternate routes with a route-confidence signal that changes in degraded-network mode. |
-| Citizen SOS/reporting system | The low-connectivity reporting form queues SOS receipts locally in the browser. |
-| Offline/low-connectivity capability | A **Mesh Fallback** mode simulates 40% infrastructure loss, favours cached road-graph and SMS relay data, and retains SOS receipts in local storage. |
-| Real-time command dashboard | The situation board consolidates map, decision receipt, field feed integrity, resource capacity, communications status, and an event log. |
+| Real-time transaction analysis | The simulated event stream shows timestamped payment activity as it enters the case. |
+| Fraud probability / risk scoring | A dynamic 0–100 decision receipt changes with network evidence and counter-evidence. |
+| Behavioural anomaly detection | Timing heartbeat and deviation from expected personal rhythm are visible evidence signals. |
+| Graph / network fraud detection | The central graph exposes account, merchant, device, and beneficiary relationships. |
+| Account / device relationship analysis | The Device Relay evidence item detects shared authentication infrastructure. |
+| Explainable fraud alerts | The receipt discloses all principal score contributors, recommendation, and narrative rationale. |
+| False-positive reduction | The counterfactual KYC control demonstrates a legitimate relationship lowering risk without hiding remaining signals. |
 
-## Product Walkthrough
+## Hard-Mode Response: The Coordinated Fraud Ring
 
-The command board begins on a simulated flood incident in West Bengal. The highest-priority zone is shown in the Decision Receipt. A coordinator can select another zone on the map, inspect why it is ranked, switch to **Mesh Fallback**, submit a low-bandwidth SOS report, and approve a resource dispatch. Each step modifies the visible state so the demo communicates a complete crisis-response loop rather than static screens.
-
-### Safety and Transparency
-
-The user interface explicitly calls out that human confirmation is required before crossing a water-depth threshold. The product copy also clearly labels simulated inputs. These design decisions are intentional: high-stakes software should signal its uncertainty and boundaries, not imply that automated recommendations are definitive.
+The hard mode asks for a simulated network in which individual transactions can appear legitimate but collective behaviour reveals fraud. VeilTrace is designed specifically around this scenario. Accounts A–117, A–204, and A–381 make ordinary payments to M–9C; their shared device path, recurring timing cadence, and beneficiary hop to B–711 reveal coordination. The prototype intentionally keeps amounts modest to demonstrate that the relationship topology—not the transaction value—is the decisive signal.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    A[Citizen SMS / SOS reports] --> E[Signal normalisation]
-    B[IoT river gauges] --> E
-    C[Aerial relay observations] --> E
-    D[Cached road graph] --> E
-    E --> F[Priority & confidence model]
-    F --> G[Explainable Decision Receipt]
-    F --> H[Route-confidence layer]
-    F --> I[Resource allocation recommendation]
-    G --> J[Human confirmation gate]
-    H --> J
-    I --> J
-    J --> K[Command dashboard and decision log]
-    A --> L[Local SOS queue]
-    L --> K
+  A[Payment events] --> E[Signal normalisation]
+  B[Account behaviour] --> E
+  C[Device and session graph] --> E
+  D[Beneficiary relationships] --> E
+  E --> F[Camouflage Index]
+  F --> G[Network-risk score]
+  G --> H[Evidence ledger]
+  G --> I[Decision receipt]
+  J[Verified KYC counter-evidence] --> K[False-positive guard]
+  K --> I
+  I --> L[Human analyst review]
 ```
 
-The deployed prototype is deliberately client-side so that its demo is portable and can be inspected directly. It uses React, TypeScript, Tailwind CSS, and browser local storage for the local SOS queue. The data inputs, scoring values, and route paths are representative simulated data only.
+The deployed demo is intentionally front-end only, so its state changes and logic can be inspected without credentials. A production version would move the signal and scoring model to an audited server-side service, introduce encrypted event storage, enforce role-based review workflows, and connect to bank-grade transaction, identity, and device feeds.
 
 ## Technology Stack
 
 | Layer | Tooling |
 |---|---|
 | Application | React 19 + TypeScript |
-| Build system | Vite |
-| Styling | Tailwind CSS 4 + custom CSS design system |
-| Iconography | Lucide React |
-| Resilience prototype | Browser local storage for queued SOS receipts |
-| Deployment target | Vercel |
+| Build tooling | Vite |
+| Interface | Tailwind CSS 4 + custom Evidence Under Glass design system |
+| Network visualisation | Purpose-built SVG relationship graph |
+| Icons | Lucide React |
+| Hosting | Vercel |
 
-## Running Locally
-
-Install dependencies and start the development server from the repository root.
+## Run Locally
 
 ```bash
 pnpm install
@@ -100,44 +95,15 @@ Create a production build with:
 pnpm build
 ```
 
-## Demo Scenario
+## Responsible Use
 
-The project uses a single coherent scenario so judges can validate the whole workflow in a short demonstration.
+VeilTrace demonstrates how fraud intelligence can make a recommendation understandable and contestable. It should not automatically freeze funds, deny service, or label a person as fraudulent. Any real deployment would require formal model-governance controls, independent bias testing, privacy and security review, audit trails, lawful data-use agreements, and trained human analysts.
 
-| Stage | Demonstration event | Expected visible outcome |
-|---|---|---|
-| 1 | A coordinator inspects Farakka East. | The Decision Receipt shows risk score 94 and a 78% confidence value. |
-| 2 | The coordinator switches to **Mesh Fallback**. | Network state changes, local-cache language appears, and route confidence changes to 68%. |
-| 3 | The coordinator selects Raghunathganj. | The priority receipt, zone details, and event log update to the new zone. |
-| 4 | The coordinator approves a dispatch. | Boat unit R-12 is logged as dispatched and ready rescue-boat capacity reduces from 3 to 2. |
-| 5 | A citizen report is queued through **Log SOS**. | The low-connectivity form confirms the receipt and the locally stored count increases. |
+## Documentation
 
-## Evaluation-Criteria Alignment
-
-| Criterion | How CrisisGrid addresses it |
+| File | Purpose |
 |---|---|
-| Innovation and originality | The Decision Receipt combines transparent prioritisation, confidence, and a human-approval gate rather than a black-box risk score. |
-| Problem solving and relevance | The workflow addresses prioritisation, allocation, route viability, and communication degradation in one crisis scenario. |
-| Technical implementation | The prototype maintains stateful map selection, resource dispatch, network-mode transitions, and browser-side local queue persistence. |
-| User experience and design | The Signal in the Storm interface uses a field-map hierarchy, clear emergency colour semantics, responsive mobile layouts, and accessible focus states. |
-| Impact and scalability | The structure can be connected to live message, sensor, weather, GIS, and fleet-management feeds through a future API layer. |
-| Presentation and demo | The repository includes a focused walkthrough and project-documentation template in `docs/`. |
-
-## Repository Contents
-
-| Path | Purpose |
-|---|---|
-| `client/src/pages/Home.tsx` | Main interactive command-board experience. |
-| `client/src/index.css` | Signal in the Storm visual system and responsive layout. |
-| `docs/PROJECT_DOCUMENTATION.md` | Submission-ready project narrative. |
-| `docs/DEMO_SCRIPT.md` | Recording script for the required demo video. |
-| `docs/VALIDATION.md` | Build, responsive, and interaction validation evidence. |
-| `ideas.md` | Chosen design direction and brand/design decisions. |
-
-## Future Extension Path
-
-The next production stages would move the priority model into an auditable backend service, use encrypted storage for reports, introduce authenticated roles, verify source provenance, add a live geospatial provider, and create a two-way dispatch integration with emergency services. A production deployment would also require jurisdiction-specific governance, threat modelling, privacy review, rate limiting, audit trails, and formal human-oversight policies.
-
-## Contact
-
-Prepared for **STAMPERS National Hackathon 2026**. For event support, refer to the official STAMPERS communication channels and the supplied event materials.
+| [`docs/PROJECT_DOCUMENTATION.md`](docs/PROJECT_DOCUMENTATION.md) | Detailed problem, solution, architecture, and impact explanation. |
+| [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) | Narrated 2-minute walkthrough for a replacement or extended recording. |
+| [`docs/VALIDATION.md`](docs/VALIDATION.md) | Build, visual, interaction, and criteria-alignment record. |
+| [`docs/SUBMISSION_LINKS.md`](docs/SUBMISSION_LINKS.md) | Ready-to-paste final-submission URLs. |
