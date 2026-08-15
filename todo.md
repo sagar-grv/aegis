@@ -58,12 +58,13 @@
 - [x] Superseded: the final Aegis documentation and submission package now represent the sign-in-free public contribution model.
 - [x] Superseded: the optional photo adapter is public-facing, constrained to neutral visual observations, and cannot make or execute a decision.
 - [x] Superseded: public report and response procedures were validated through a self-cleaning API probe without a user account.
-- [ ] End-to-end validate a privacy-safe real field-photo upload, server-side storage, strict visual-observation extraction, and visible operator confirmation without fabricating field evidence.
+- [x] Superseded by the owner-approved Vercel session-only model: no real photo is uploaded or retained on the external public deployment.
 - [x] Replace remaining legacy InsightLoop documentation and remove obsolete Aegis submission links before final delivery.
 - [x] Adapt the Express/tRPC application for Vercel serverless execution and verify the deployed public `aegis.live` procedure returns live evidence rather than a 404.
 - [x] Record an evidence-based Aegis walkthrough showing live public telemetry, deliberate weather evidence loss, explicit refusal, smallest-missing-fact recovery, and an Indian site change; state the authenticated operator test boundary without fabricating a session.
-- [ ] Complete Vercel production persistence for sign-in-free, explicitly unattributed public reports and responses; the current Vercel fallback is session-only and intentionally disclosed.
+- [x] Superseded by the owner-approved Vercel session-only public-contribution model; the production fallback is intentional and disclosed.
 - [x] Run a self-cleaning public-API verification for anonymous Aegis field reports and decision receipts, confirming no temporary record remains after the test.
 - [x] Re-record the Aegis demonstration to show the live public desk, hard-mode refusal, anonymous public contribution and response controls, and the self-cleaning public API verification.
 - [x] Make the Vercel public assessment and public contribution experience graceful when external database credentials are unavailable, without fabricating persisted records or blocking live evidence and hard mode.
-- [ ] Provision Vercel database, object-storage, and model credentials before claiming externally persisted public reports, receipts, or optional visual extraction on the production URL.
+- [x] Superseded by the owner-approved Vercel session-only model; external persistence, object storage, and server-side model credentials are intentionally not provisioned.
+- [x] Finalize the user-approved Vercel session-only contribution model in the delivery checklist and documentation, confirming that no public contribution or photo is retained on the external deployment.

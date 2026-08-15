@@ -68,15 +68,15 @@ When refusing, Aegis names the **smallest missing fact**. For a missing weather 
 
 ## Optional Photo Evidence: Boundaries and Privacy
 
-Photo input is available with a public contribution. The server accepts only JPEG, PNG, and WebP data URLs at or below 2.5 MB. It persists the original as an object associated with the explicitly unattributed report. It sends the image to the server-side visual extractor, which must return a strict JSON shape containing neutral visible scene conditions, surface status, visibility, weather indicators, and whether human verification remains necessary.
+Photo input is available with a public contribution. The server accepts only JPEG, PNG, and WebP data URLs at or below 2.5 MB. In the managed full-stack runtime, it persists the original as an object associated with the explicitly unattributed report and sends it to the server-side visual extractor, which must return a strict JSON shape containing neutral visible scene conditions, surface status, visibility, weather indicators, and whether human verification remains necessary. The external Vercel desk transparently keeps public text context in the current browser session while database, storage, and model credentials are not configured there.
 
-The visual extractor is deliberately prohibited from identifying people, deciding whether operations may proceed, assigning a safety score, or executing an action. The field condition selected by the operator remains human-provided. Photo-derived text is supporting context only and is never silently reclassified as a live sensor source.
+The visual extractor is deliberately prohibited from identifying people, deciding whether operations may proceed, assigning a safety score, or executing an action. The field condition selected by the public contributor remains human-provided. Photo-derived text is supporting context only and is never silently reclassified as a live sensor source.
 
-Operators should submit only a scene image necessary for the assessment. They should avoid faces, vehicle registration numbers, private homes, and any personal or sensitive information. The field-photo feature is optional; Aegis still refuses where the required evidence remains absent.
+Public contributors should submit only a scene image necessary for the assessment. They should avoid faces, vehicle registration numbers, private homes, and any personal or sensitive information. The field-photo feature is optional; Aegis still refuses where the required evidence remains absent.
 
 ## Human Accountability
 
-Aegis provides recommendations but never performs the follow-on action. The public `recordReview` procedure stores an explicitly unattributed acknowledgement, request for a check, or deferral with the decision, confidence, risk score, and evidence snapshot at that moment. This preserves the distinction between what the system recommended and what a public contributor selected, without misrepresenting the response as accountable operational authorisation.
+Aegis provides recommendations but never performs the follow-on action. In the managed full-stack runtime, the public `recordReview` procedure stores an explicitly unattributed acknowledgement, request for a check, or deferral with the decision, confidence, risk score, and evidence snapshot at that moment. The Vercel fallback presents the same public controls but retains text context only in the contributor’s current browser session until its persistence services are configured. This preserves the distinction between what the system recommended and what a public contributor selected, without misrepresenting the response as accountable operational authorisation.
 
 | Record | Author | Immutable content | Purpose |
 | --- | --- | --- | --- |
