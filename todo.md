@@ -60,3 +60,4 @@
 - [ ] Live-test the authenticated Aegis text-report and human-decision receipt workflows using the presenter’s own account and verify the persisted outcome in the interface.
 - [ ] End-to-end validate a privacy-safe real field-photo upload, server-side storage, strict visual-observation extraction, and visible operator confirmation without fabricating field evidence.
 - [ ] Replace remaining legacy InsightLoop documentation and remove obsolete Aegis submission links before final delivery.
+- [ ] Adapt the Express/tRPC application for Vercel serverless execution and verify the deployed public `aegis.live` procedure returns live evidence rather than a 404.
