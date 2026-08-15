@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
 const mocks = vi.hoisted(() => ({
@@ -35,6 +35,13 @@ function contextFor(user: TrpcContext["user"]): TrpcContext {
 }
 
 describe("InsightLoop positive protected routes", () => {
+  beforeEach(() => {
+    mocks.getLearnerWorkspace.mockReset();
+    mocks.getTeacherAnalytics.mockReset();
+    mocks.saveLearnerAttempt.mockReset();
+    mocks.diagnoseLearnerWork.mockReset();
+  });
+
   it("returns an authenticated learner workspace", async () => {
     mocks.getLearnerWorkspace.mockResolvedValueOnce({ paths: [], attempts: [] });
     await expect(appRouter.createCaller(contextFor(learner)).learning.mine()).resolves.toEqual({ paths: [], attempts: [] });
@@ -54,5 +61,12 @@ describe("InsightLoop positive protected routes", () => {
     const aggregate = { summary: { submissions: 2, learners: 1 }, topicRows: [{ topic: "Arithmetic", submissions: 2 }], activePaths: [{ status: "active", total: 1 }] };
     mocks.getTeacherAnalytics.mockResolvedValueOnce(aggregate);
     await expect(appRouter.createCaller(contextFor(teacher)).learning.teacherAnalytics()).resolves.toEqual(aggregate);
+  });
+
+  it("surfaces a diagnosis failure without persisting a learner attempt", async () => {
+    mocks.diagnoseLearnerWork.mockRejectedValueOnce(new Error("Learning diagnosis is temporarily unavailable."));
+    const input = { topic: "Arithmetic", prompt: "What is 12 divided by 3?", learnerAnswer: "I divided the digits.", selfConfidence: 55 };
+    await expect(appRouter.createCaller(contextFor(learner)).learning.submit(input)).rejects.toThrow("Learning diagnosis is temporarily unavailable.");
+    expect(mocks.saveLearnerAttempt).not.toHaveBeenCalledWith(expect.objectContaining({ learnerUserId: 42, topic: "Arithmetic" }));
   });
 });

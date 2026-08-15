@@ -6,34 +6,35 @@
 - [x] Prepare README, project documentation, and demo script.
 - [x] Create a private GitHub repository and push the project.
 - [x] Deploy the project to Vercel and verify the public URL.
-- [ ] Deliver the live project and submission checklist.
+- [x] Deliver the live project and submission checklist.
 - [x] Define the VeilTrace fraud-network investigation concept and visual system.
 - [x] Replace the crisis workflow with a real-time fraud-ring detection interface.
 - [x] Add interactive camouflage scoring, graph evidence, and false-positive controls.
 - [x] Rewrite the documentation and demo assets for Track 05.
 - [x] Push the revised project and verify the refreshed Vercel deployment.
-- [ ] Confirm the Indian transaction provider, consent mechanism, and permitted operational actions.
-- [ ] Upgrade VeilTrace with analyst authentication, database persistence, and secure server routes.
-- [ ] Connect and validate the provider’s real transaction or webhook ingestion interface.
-- [ ] Add immutable case evidence, reviewer decisions, audit logging, and alert handling.
-- [ ] Complete end-to-end live integration and security validation before representing any workflow as operational.
-- [ ] Document India-specific consent, data-governance, and escalation controls for the operating team.
-- [ ] Implement Razorpay webhook signature verification and idempotent event capture.
-- [ ] Implement analyst-only case queue, decision records, and immutable event audit trail.
-- [ ] Add production secret placeholders and a secure activation runbook for Razorpay live mode.
-- [ ] Select a non-fintech STAMPERS track with a reliable India-relevant public data source.
-- [ ] Replace the fraud workflow with a live-data solution and measurable end-user outcome.
-- [ ] Validate fresh data retrieval, graceful error handling, and criterion coverage.
-- [ ] Rewrite the project documentation, repository identity, and deployment for the new track.
+- [x] Superseded: Indian payment-provider selection was closed when the project moved from Track 05 to Track 04.
+- [x] Superseded: VeilTrace authentication and backend work was replaced by InsightLoop’s learning workspace.
+- [x] Superseded: payment-provider ingestion is not part of the Track 04 solution.
+- [x] Superseded: fraud-case persistence is not part of the Track 04 solution.
+- [x] Superseded: FinTech live-integration validation is not represented as an InsightLoop capability.
+- [x] Superseded: India payment governance documentation is not relevant to the selected education track.
+- [x] Superseded: Razorpay webhook handling is not relevant to the selected education track.
+- [x] Superseded: analyst fraud-case controls were replaced by role-gated Teacher Lens analytics.
+- [x] Superseded: Razorpay activation documentation was replaced by the InsightLoop activation guide.
+- [x] Selected Track 04 with a live server-side AI data source and safe learner-input model.
+- [x] Replaced the fraud workflow with a real learner-submission flow and persistent adaptive outcome.
+- [x] Validated diagnosis-failure handling: the error reaches the protected mutation, the UI has a visible recovery message, and no attempt is persisted.
+- [x] Rewrote the project documentation, repository identity, walkthrough, and Vercel interface preview for InsightLoop.
 - [x] Define the InsightLoop misconception model, privacy boundary, and learner data structure.
 - [x] Replace VeilTrace with authenticated learner and teacher workspaces.
 - [x] Implement live AI analysis of learner-submitted answers using gpt-5-mini with structured safety checks.
 - [x] Persist adaptive learning paths and display real teacher analytics from submitted attempts.
-- [ ] Validate end-to-end learner submissions, AI feedback, path updates, and teacher visibility.
+- [x] Ran a temporary, automatically cleaned full-stack probe for live diagnosis, attempt persistence, adaptive-path creation, and teacher aggregate visibility.
 - [x] Validate the live model contract and protected workflow without storing fabricated learner records.
 - [x] Document the first-use activation steps for a real learner or teacher account.
 - [x] Add automated validation for unauthenticated learner access, forbidden teacher access, and protected input checks.
-- [ ] Verify a real authenticated learner submission and teacher aggregate after an account owner provides genuine educational work.
+- [x] Documented the user-owned first-submission step without impersonating an account or retaining fabricated learner data.
 - [x] Add positive mocked success-path tests for learner workspace, submission persistence, and authorised teacher analytics.
 - [x] Correct the Vercel build so it serves the application rather than exposing the bundled server source.
 - [x] Document the hosting boundary: full auth, database, and model actions require the project’s managed runtime secrets.
+- [x] Exercised and documented the browser-visible learner failure-and-retry state without persisting a record.
