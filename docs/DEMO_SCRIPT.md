@@ -2,7 +2,7 @@
 
 ## Setup
 
-Open the deployed VeilTrace site at desktop width. Begin with the initial **Low Visibility** state. The visual walkthrough included in the submission shows the same three states; this script supports a narrated replacement or extended recording.
+Open the deployed VeilTrace site at [veiltrace-mauve.vercel.app](https://veiltrace-mauve.vercel.app) at desktop width. Begin with the initial **Low Visibility** state. The visual walkthrough included in the submission shows the same three states; this script supports a narrated replacement or extended recording.
 
 | Time | Action | Suggested narration |
 |---|---|---|

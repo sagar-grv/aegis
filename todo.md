@@ -11,4 +11,4 @@
 - [x] Replace the crisis workflow with a real-time fraud-ring detection interface.
 - [x] Add interactive camouflage scoring, graph evidence, and false-positive controls.
 - [x] Rewrite the documentation and demo assets for Track 05.
-- [ ] Push the revised project and verify the refreshed Vercel deployment.
+- [x] Push the revised project and verify the refreshed Vercel deployment.

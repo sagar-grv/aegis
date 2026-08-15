@@ -2,8 +2,8 @@
 
 | Submission item | Link |
 |---|---|
-| Deployed project | [https://stampers-crisisgrid.vercel.app](https://stampers-crisisgrid.vercel.app) |
-| GitHub repository | [https://github.com/sagar-grv/stampers-crisisgrid](https://github.com/sagar-grv/stampers-crisisgrid) |
+| Deployed project | [https://veiltrace-mauve.vercel.app](https://veiltrace-mauve.vercel.app) |
+| GitHub repository | [https://github.com/sagar-grv/veiltrace](https://github.com/sagar-grv/veiltrace) |
 | Video demo | [VeilTrace visual walkthrough](https://files.manuscdn.com/user_upload_by_module/session_file/91236325/FgORdAnXQloqgPYI.mp4) |
 | Project documentation | [`PROJECT_DOCUMENTATION.md`](PROJECT_DOCUMENTATION.md) |
 | Demo script | [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md) |

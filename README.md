@@ -8,7 +8,7 @@ The project uses an intentionally simulated fraud network, as requested by the c
 
 | Submission item | Link |
 |---|---|
-| Live prototype | [stampers-crisisgrid.vercel.app](https://stampers-crisisgrid.vercel.app) |
+| Live prototype | [veiltrace-mauve.vercel.app](https://veiltrace-mauve.vercel.app) |
 | Video walkthrough | [Watch the VeilTrace demo](https://files.manuscdn.com/user_upload_by_module/session_file/91236325/FgORdAnXQloqgPYI.mp4) |
 | Submission index | [`docs/SUBMISSION_LINKS.md`](docs/SUBMISSION_LINKS.md) |
 
