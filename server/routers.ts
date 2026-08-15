@@ -4,7 +4,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getLatestAegisFieldReport, getLearnerWorkspace, getTeacherAnalytics, saveAegisDecisionReceipt, saveAegisFieldReport, saveLearnerAttempt } from "./db";
+import { getDb, getLatestAegisFieldReport, getLearnerWorkspace, getTeacherAnalytics, saveAegisDecisionReceipt, saveAegisFieldReport, saveLearnerAttempt } from "./db";
 import { diagnoseLearnerWork } from "./learning";
 import { assessEvidence, getLiveEvidence, type AegisSourceId } from "./aegis";
 import { extractAegisVisualObservation, parseAegisPhotoDataUrl } from "./aegisPhoto";
@@ -63,11 +63,18 @@ export const appRouter = router({
       return { assessment: assessEvidence(evidence, {}, input.disabled as AegisSourceId[]) };
     }),
     assess: publicProcedure.input(locationInput.extend({ disabled: disabledSources })).query(async ({ input }) => {
-      const [evidence, latest] = await Promise.all([getLiveEvidence(input.latitude, input.longitude), getLatestAegisFieldReport(input.latitude, input.longitude)]);
+      const evidence = await getLiveEvidence(input.latitude, input.longitude);
+      let latest = null;
+      try {
+        latest = await getLatestAegisFieldReport(input.latitude, input.longitude);
+      } catch (error) {
+        console.warn("[Aegis] Public assessment continuing without persistence:", error instanceof Error ? error.message : error);
+      }
       const field = latest ? { attribution: latest.attribution, siteLabel: latest.siteLabel, fieldCondition: latest.fieldCondition, observedWindKph: latest.observedWindKph, note: latest.note, visualObservation: latest.visualObservation as Record<string, unknown> | null } : {};
-      return { assessment: assessEvidence(evidence, field, input.disabled as AegisSourceId[]), fieldReport: latest };
+      return { assessment: assessEvidence(evidence, field, input.disabled as AegisSourceId[]), fieldReport: latest, persistenceAvailable: Boolean(await getDb()) };
     }),
     reportField: publicProcedure.input(fieldInput).mutation(async ({ input }) => {
+      if (!await getDb()) return { id: null, attribution: "unattributed" as const, persistence: "unavailable" as const, photoEvidence: null };
       let photoUrl: string | null = null;
       let visualObservation = null;
       if (input.photoDataUrl) {
@@ -82,9 +89,10 @@ export const appRouter = router({
       }
       const { photoDataUrl: _photoDataUrl, ...report } = input;
       const id = await saveAegisFieldReport({ operatorUserId: null, attribution: "unattributed", ...report, photoUrl, visualObservation });
-      return { id, attribution: "unattributed" as const, photoEvidence: photoUrl ? { photoUrl, visualObservation } : null };
+      return { id, attribution: "unattributed" as const, persistence: "saved" as const, photoEvidence: photoUrl ? { photoUrl, visualObservation } : null };
     }),
     recordReview: publicProcedure.input(locationInput.extend({ disabled: disabledSources, operatorAction: z.enum(["approve", "request_check", "defer"]), operatorNote: z.string().trim().min(3).max(2000) })).mutation(async ({ input }) => {
+      if (!await getDb()) return { receiptId: null, persistence: "unavailable" as const };
       const [evidence, latest] = await Promise.all([getLiveEvidence(input.latitude, input.longitude), getLatestAegisFieldReport(input.latitude, input.longitude)]);
       const field = latest ? { attribution: latest.attribution, siteLabel: latest.siteLabel, fieldCondition: latest.fieldCondition, observedWindKph: latest.observedWindKph, note: latest.note, visualObservation: latest.visualObservation as Record<string, unknown> | null } : {};
       const assessment = assessEvidence(evidence, field, input.disabled as AegisSourceId[]);
@@ -93,7 +101,7 @@ export const appRouter = router({
         decision: assessment.decision, confidence: assessment.confidence, riskScore: assessment.riskScore,
         operatorAction: input.operatorAction, operatorNote: input.operatorNote, evidenceSnapshot: assessment,
       });
-      return { receiptId, assessment };
+      return { receiptId, persistence: "saved" as const, assessment };
     }),
   }),
 });

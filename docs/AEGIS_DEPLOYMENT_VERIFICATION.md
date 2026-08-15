@@ -13,3 +13,5 @@ An attempt to launch the production OAuth handoff from the connected browser res
 After the anonymous-public access conversion, the local browser showed no sign-in control. **Add public field fact** opened the contribution modal directly, with field condition, optional measured gust, note, and optional-image controls. The modal explicitly states that contributions are unattributed and cannot restore Aegis confidence or authorise an action.
 
 The browser also opened **Record public human response** without authentication. Its receipt modal labels the response unattributed, confirms that Aegis cannot execute the action, and presents only separate human response choices: defer, request a check, or acknowledge the recommendation.
+
+After the first Vercel public-access release, the production interface displayed the sign-in-free controls but did not resolve its assessment card. This is recorded as an active deployment regression pending a database-independent public assessment fallback; it must not be treated as final public-release verification.

@@ -65,3 +65,4 @@
 - [ ] Remove the sign-in requirement from Aegis field-report and human-decision flows; persist public submissions as explicitly unattributed records and verify the public workflow without fabricated evidence.
 - [ ] Run a self-cleaning public-API verification for anonymous Aegis field reports and decision receipts, confirming no temporary record remains after the test.
 - [ ] Re-record the Aegis demonstration to show the live public desk, hard-mode refusal, anonymous public contribution and response controls, and the self-cleaning public API verification.
+- [ ] Make the Vercel public assessment and public contribution experience graceful when external database credentials are unavailable, without fabricating persisted records or blocking live evidence and hard mode.
