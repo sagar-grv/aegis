@@ -26,4 +26,21 @@ describe("Aegis evidence-weighted decision engine", () => {
     expect(result.decision).toBe("refuse");
     expect(result.smallestMissingFact).toContain("wind-gust");
   });
+
+  it("does not let a visual observation independently change evidence coverage or decision authority", () => {
+    const withoutVisualObservation = assessEvidence(evidence, {});
+    const withVisualObservationOnly = assessEvidence(evidence, {
+      visualObservation: {
+        visualSummary: "A paved walkway and open sky are visible.",
+        surfaceCondition: "dry",
+        visibility: "clear",
+        weatherIndicators: "No visible precipitation.",
+        requiresHumanCheck: false,
+      },
+    });
+
+    expect(withVisualObservationOnly.decision).toBe(withoutVisualObservation.decision);
+    expect(withVisualObservationOnly.coverage).toBe(withoutVisualObservation.coverage);
+    expect(withVisualObservationOnly.sources.find(source => source.id === "field")?.state).toBe("missing");
+  });
 });

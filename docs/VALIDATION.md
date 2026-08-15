@@ -5,11 +5,12 @@
 | Check | Result | Evidence |
 | --- | --- | --- |
 | Production build | Pass | `pnpm build` completed after the public assessment clarification and the field-photo feature. |
-| Automated tests | Pass | `pnpm test` completed with 16 passing tests across six suites. |
+| Automated tests | Pass | `pnpm test` completed with 17 passing tests across six suites. |
 | Live public evidence | Pass | The browser resolved current Bengaluru weather, gust, precipitation probability, air-quality, timezone, provenance, and a public recommendation. |
 | Hard-mode evidence loss | Pass | Hiding `Wind & weather` produced 50% coverage, 40% confidence, explicit refusal, and a fresh on-site wind-gust request. |
 | Persistence probe | Pass | The self-cleaning full-stack integration probe retrieved live evidence, saved a temporary field report and review receipt, then verified cleanup. |
 | Field-photo input safety | Pass | A dedicated unit suite accepts bounded JPEG input and rejects unsupported MIME types and oversized data. |
+| Visual-observation authority boundary | Pass | Aegis policy regression test proves that a visual observation alone leaves field evidence absent and cannot change coverage or the decision. |
 | Live model catalog | Pass | The current catalog was checked before selecting the multimodal `gemini-3-flash-preview` visual-observation model. |
 
 ## Independent Validation Boundary
