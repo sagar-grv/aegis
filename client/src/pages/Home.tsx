@@ -73,7 +73,7 @@ export default function Home() {
     <div className="cg-shell">
       <header className="cg-topbar">
         <div className="cg-brand">
-          <img src="/manus-storage/crisisgrid-relay-logo_5d5fc802.png" alt="CrisisGrid relay symbol" />
+          <img src="https://files.manuscdn.com/user_upload_by_module/session_file/91236325/CjAhfUlBVerJYLRX.png" alt="CrisisGrid relay symbol" />
           <div><p className="cg-wordmark">CrisisGrid</p><p className="cg-brand-subtitle">response coordination layer</p></div>
         </div>
         <div className="cg-top-meta">
@@ -111,7 +111,7 @@ export default function Home() {
           <section className="cg-overview-grid">
             <article className="cg-map-card">
               <div className="cg-card-heading cg-map-heading"><div><span className="cg-mono-label">TERRITORY PLANE / UPDATED 06:54</span><h2>Flood impact & accessible corridors</h2></div><button className="cg-layer-button"><MapPinned size={15} /> Risk layer <ChevronRight size={14} /></button></div>
-              <div className="cg-territory" style={{ backgroundImage: "url('/manus-storage/crisisgrid-terrain-hero_85a9d9ca.jpg')" }}>
+              <div className="cg-territory" style={{ backgroundImage: "url('https://files.manuscdn.com/user_upload_by_module/session_file/91236325/DxhWRVCVEQlShuSx.jpg')" }}>
                 <div className="cg-river river-a" /><div className="cg-river river-b" />
                 <svg className="cg-route-svg" viewBox="0 0 800 420" preserveAspectRatio="none" aria-hidden="true"><path d="M 78 318 C 170 268, 210 306, 305 218 S 490 144, 588 220 S 708 255, 754 130" /><path className="alternate" d="M 85 120 C 175 178, 270 120, 345 188 S 516 312, 690 280" /></svg>
                 <div className="cg-map-key"><span><i className="critical" /> critical</span><span><i className="elevated" /> elevated</span><span><i className="route" /> viable route</span></div>
@@ -136,7 +136,7 @@ export default function Home() {
           <section className="cg-bottom-grid">
             <article className="cg-resources-card"><div className="cg-card-heading"><div><span className="cg-mono-label">RESOURCE LEDGER</span><h2>Deployable capacity</h2></div><button className="cg-text-button">Full ledger <ChevronRight size={15} /></button></div><div className="cg-resource-list">{activeResources.map((resource, index) => <div className="cg-resource-item" key={resource.label}><span className={`cg-resource-mark ${resource.tone}`}>{index === 0 ? <Route size={18} /> : index === 1 ? <BatteryCharging size={18} /> : <Activity size={18} />}</span><div><strong>{resource.label}</strong><p>{resource.available}</p></div><b>{resource.unit}</b></div>)}</div></article>
             <article className="cg-feed-card"><div className="cg-card-heading"><div><span className="cg-mono-label">SIGNAL INTEGRITY</span><h2>Field feeds</h2></div><span className="cg-timestamp">06:54:32</span></div><div className="cg-feed-list">{feeds.map(feed => { const Icon = feed.icon; return <div className="cg-feed" key={feed.source}><span className="cg-feed-icon"><Icon size={17} /></span><div><strong>{feed.source}</strong><p>{feed.detail}</p></div><em className={feed.status.toLowerCase()}>{feed.status}</em></div>; })}</div></article>
-            <article className="cg-evidence-card"><div className="cg-evidence-image" style={{ backgroundImage: "url('/manus-storage/crisisgrid-response-scene_515b3dcb.jpg')" }} /><div className="cg-evidence-content"><span className="cg-mono-label">FIELD NOTE / 06:51</span><h3>Command is stronger when the field can still speak.</h3><p>CrisisGrid accepts structured SOS reports through low-bandwidth relay forms when conventional service is disrupted.</p><button onClick={() => setSosOpen(true)}>Open reporting relay <ArrowUpRight size={15} /></button></div></article>
+            <article className="cg-evidence-card"><div className="cg-evidence-image" style={{ backgroundImage: "url('https://files.manuscdn.com/user_upload_by_module/session_file/91236325/PRfIxPcAUUWsYCKO.jpg')" }} /><div className="cg-evidence-content"><span className="cg-mono-label">FIELD NOTE / 06:51</span><h3>Command is stronger when the field can still speak.</h3><p>CrisisGrid accepts structured SOS reports through low-bandwidth relay forms when conventional service is disrupted.</p><button onClick={() => setSosOpen(true)}>Open reporting relay <ArrowUpRight size={15} /></button></div></article>
           </section>
 
           <section className="cg-method-strip"><div><FileText size={19} /><span><strong>Built for the STAMPERS Open Innovation track.</strong> Simulated data is clearly marked, every allocation is explainable, and fallback logic is observable.</span></div><button onClick={() => setLogMessage("Submission mode: the full scenario, architecture, demo flow, and data disclaimers are documented in the repository.")}>View project notes <ChevronRight size={15} /></button></section>
