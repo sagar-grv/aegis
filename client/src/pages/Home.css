@@ -1,0 +1,10 @@
+/**
+ * CRISISGRID — SIGNAL IN THE STORM
+ * Supporting style: data receipts remain compact, monospace, and field-operational.
+ */
+.cg-queue-count {
+  color: var(--teal) !important;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px !important;
+  letter-spacing: 0.06em;
+}

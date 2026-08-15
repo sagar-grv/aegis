@@ -1,0 +1,34 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [],
+  "dev_command": "pnpm run dev",
+  "env_vars": {},
+  "experiments": null,
+  "git_remote": {
+    "repo_url": "https://7f0548f6b28a1758d9bf7be630d36cb4.artifacts.cloudflare.net/git/prod/n4Xxc6UCqjuJLYeyWapKpT.git",
+    "expiration": "2026-08-16T01:23:09.864Z",
+    "token": "art_v2_x_edf7a1ad9655694289f02598c08fdc12b75671c5?expires=1786843389",
+    "backend": "GIT_BACKEND_ARTIFACTS"
+  },
+  "name": "stampers-crisisgrid",
+  "path": "/home/ubuntu/stampers-crisisgrid",
+  "port": 3000,
+  "secrets": {
+    "BUILT_IN_FORGE_API_KEY": "89F7Rd6jbeKyZR3GYgP7wg",
+    "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "JWT_SECRET": "CPD6xcsvcxyVKoV3QerFmh",
+    "OAUTH_SERVER_URL": "https://api.manus.im",
+    "OWNER_NAME": "Sagar Gurav",
+    "OWNER_OPEN_ID": "UMFy36SZrMtiVn6aJis4NB",
+    "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
+    "VITE_ANALYTICS_WEBSITE_ID": "706251f2-2da9-4b37-bbac-f01117d29442",
+    "VITE_APP_ID": "n4Xxc6UCqjuJLYeyWapKpT",
+    "VITE_APP_LOGO": "https://files.manuscdn.com/user_upload_by_module/web_dev_logo/91236325/irCiksWjJkEQqUTC.png",
+    "VITE_APP_TITLE": "CrisisGrid — Resilient Crisis Response Coordination",
+    "VITE_FRONTEND_FORGE_API_KEY": "d4UpQ58EhC7EStpoabcjWe",
+    "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+  },
+  "template_id": "web-static",
+  "test_command": "pnpm test"
+}
