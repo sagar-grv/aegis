@@ -50,3 +50,7 @@ pnpm build
 ## Privacy Notice
 
 Learners should submit only educational work. Do not include personal identifiers, medical information, financial details, or other sensitive content in the free-text response.
+
+## Hosting Boundary
+
+The repository can be previewed on Vercel as a browser-interface build. The **full operational workspace**—OAuth, protected server routes, database persistence, and server-side AI credentials—runs in the managed project runtime, where these secrets are provisioned. Do not represent a static external preview as a production learner-record system unless its equivalent server environment and secrets have been configured.
