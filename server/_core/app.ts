@@ -25,3 +25,5 @@ export function createAegisExpressApp() {
   );
   return app;
 }
+
+export default createAegisExpressApp();
