@@ -18,14 +18,14 @@ try {
   const userInsert = await db.insert(users).values({ openId: probeId, name: "Aegis temporary integration probe", role: "admin" });
   userId = Number(userInsert[0].insertId);
   fieldReportId = await saveAegisFieldReport({
-    operatorUserId: userId, latitude: 12.9716, longitude: 77.5946, siteLabel: "Aegis temporary integration probe",
+    operatorUserId: userId, attribution: "authenticated", latitude: 12.9716, longitude: 77.5946, siteLabel: "Aegis temporary integration probe",
     fieldCondition: "clear", observedWindKph: null, note: "Temporary automated verification only. This is not an operational field observation and will be deleted.",
   });
-  const latest = await getLatestAegisFieldReport(userId, 12.9716, 77.5946);
+  const latest = await getLatestAegisFieldReport(12.9716, 77.5946);
   if (!latest || latest.id !== fieldReportId) throw new Error("Persisted field report was not retrievable.");
-  const assessment = assessEvidence(liveEvidence, { fieldCondition: latest.fieldCondition, observedWindKph: latest.observedWindKph, note: latest.note }, []);
+  const assessment = assessEvidence(liveEvidence, { attribution: latest.attribution, fieldCondition: latest.fieldCondition, observedWindKph: latest.observedWindKph, note: latest.note }, []);
   receiptId = await saveAegisDecisionReceipt({
-    operatorUserId: userId, latitude: 12.9716, longitude: 77.5946, siteLabel: "Aegis temporary integration probe", decision: assessment.decision,
+    operatorUserId: userId, attribution: "authenticated", latitude: 12.9716, longitude: 77.5946, siteLabel: "Aegis temporary integration probe", decision: assessment.decision,
     confidence: assessment.confidence, riskScore: assessment.riskScore, operatorAction: "request_check", operatorNote: "Temporary automated verification only; delete after test.", evidenceSnapshot: assessment,
   });
   console.log(JSON.stringify({ status: "passed", liveEvidence: { timezone: liveEvidence.location.timezone, windGusts: liveEvidence.weather.windGusts, usAqi: liveEvidence.air.usAqi }, refusal: refusal.decision, assessment: assessment.decision, coverage: assessment.coverage, fieldReportId, receiptId }, null, 2));

@@ -3,8 +3,8 @@ import { mkdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 
 const assetDirectory = "/home/ubuntu/webdev-static-assets";
-const outputPath = path.join(assetDirectory, "aegis-protected-workflow-validation.webm");
-const sourcePath = path.join(assetDirectory, "aegis-protected-probe-evidence.html");
+const outputPath = path.join(assetDirectory, "aegis-public-workflow-validation.webm");
+const sourcePath = path.join(assetDirectory, "aegis-public-probe-evidence.html");
 
 await mkdir(assetDirectory, { recursive: true });
 await rm(outputPath, { force: true });

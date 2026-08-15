@@ -62,34 +62,34 @@ export const appRouter = router({
       const evidence = await getLiveEvidence(input.latitude, input.longitude);
       return { assessment: assessEvidence(evidence, {}, input.disabled as AegisSourceId[]) };
     }),
-    assess: protectedProcedure.input(locationInput.extend({ disabled: disabledSources })).query(async ({ ctx, input }) => {
-      const [evidence, latest] = await Promise.all([getLiveEvidence(input.latitude, input.longitude), getLatestAegisFieldReport(ctx.user.id, input.latitude, input.longitude)]);
-      const field = latest ? { siteLabel: latest.siteLabel, fieldCondition: latest.fieldCondition, observedWindKph: latest.observedWindKph, note: latest.note, visualObservation: latest.visualObservation as Record<string, unknown> | null } : {};
+    assess: publicProcedure.input(locationInput.extend({ disabled: disabledSources })).query(async ({ input }) => {
+      const [evidence, latest] = await Promise.all([getLiveEvidence(input.latitude, input.longitude), getLatestAegisFieldReport(input.latitude, input.longitude)]);
+      const field = latest ? { attribution: latest.attribution, siteLabel: latest.siteLabel, fieldCondition: latest.fieldCondition, observedWindKph: latest.observedWindKph, note: latest.note, visualObservation: latest.visualObservation as Record<string, unknown> | null } : {};
       return { assessment: assessEvidence(evidence, field, input.disabled as AegisSourceId[]), fieldReport: latest };
     }),
-    reportField: protectedProcedure.input(fieldInput).mutation(async ({ ctx, input }) => {
+    reportField: publicProcedure.input(fieldInput).mutation(async ({ input }) => {
       let photoUrl: string | null = null;
       let visualObservation = null;
       if (input.photoDataUrl) {
         const photo = parseAegisPhotoDataUrl(input.photoDataUrl);
         visualObservation = await extractAegisVisualObservation(input.photoDataUrl);
         const stored = await storagePut(
-          `aegis/${ctx.user.id}/field-evidence/${Date.now()}.${photo.extension}`,
+          `aegis/public/field-evidence/${Date.now()}.${photo.extension}`,
           photo.bytes,
           photo.mimeType,
         );
         photoUrl = stored.url;
       }
       const { photoDataUrl: _photoDataUrl, ...report } = input;
-      const id = await saveAegisFieldReport({ operatorUserId: ctx.user.id, ...report, photoUrl, visualObservation });
-      return { id, photoEvidence: photoUrl ? { photoUrl, visualObservation } : null };
+      const id = await saveAegisFieldReport({ operatorUserId: null, attribution: "unattributed", ...report, photoUrl, visualObservation });
+      return { id, attribution: "unattributed" as const, photoEvidence: photoUrl ? { photoUrl, visualObservation } : null };
     }),
-    recordReview: protectedProcedure.input(locationInput.extend({ disabled: disabledSources, operatorAction: z.enum(["approve", "request_check", "defer"]), operatorNote: z.string().trim().min(3).max(2000) })).mutation(async ({ ctx, input }) => {
-      const [evidence, latest] = await Promise.all([getLiveEvidence(input.latitude, input.longitude), getLatestAegisFieldReport(ctx.user.id, input.latitude, input.longitude)]);
-      const field = latest ? { siteLabel: latest.siteLabel, fieldCondition: latest.fieldCondition, observedWindKph: latest.observedWindKph, note: latest.note, visualObservation: latest.visualObservation as Record<string, unknown> | null } : {};
+    recordReview: publicProcedure.input(locationInput.extend({ disabled: disabledSources, operatorAction: z.enum(["approve", "request_check", "defer"]), operatorNote: z.string().trim().min(3).max(2000) })).mutation(async ({ input }) => {
+      const [evidence, latest] = await Promise.all([getLiveEvidence(input.latitude, input.longitude), getLatestAegisFieldReport(input.latitude, input.longitude)]);
+      const field = latest ? { attribution: latest.attribution, siteLabel: latest.siteLabel, fieldCondition: latest.fieldCondition, observedWindKph: latest.observedWindKph, note: latest.note, visualObservation: latest.visualObservation as Record<string, unknown> | null } : {};
       const assessment = assessEvidence(evidence, field, input.disabled as AegisSourceId[]);
       const receiptId = await saveAegisDecisionReceipt({
-        operatorUserId: ctx.user.id, latitude: input.latitude, longitude: input.longitude, siteLabel: input.siteLabel,
+        operatorUserId: null, attribution: "unattributed", latitude: input.latitude, longitude: input.longitude, siteLabel: input.siteLabel,
         decision: assessment.decision, confidence: assessment.confidence, riskScore: assessment.riskScore,
         operatorAction: input.operatorAction, operatorNote: input.operatorNote, evidenceSnapshot: assessment,
       });

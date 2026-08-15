@@ -13,12 +13,11 @@ The hackathon demonstration uses Indian locations and real environmental inputs.
 | Layer | Components | Responsibility |
 | --- | --- | --- |
 | **Experience** | React 19, TypeScript, Vite, responsive Aegis desk | Renders source provenance, telemetry, fault mode, decision rationale, and human controls. |
-| **Application API** | Express and tRPC | Separates public live/preview procedures from protected field-report and receipt procedures. |
+| **Application API** | Express and tRPC | Serves live evidence, anonymous public field contributions, and separate public human-response receipts. |
 | **Evidence engine** | `server/aegis.ts` | Fetches live environmental evidence and applies a deterministic refusal policy. |
-| **Visual evidence adapter** | `server/aegisPhoto.ts`, `gemini-3-flash-preview` | Validates an optional operator photo and extracts only a constrained visual observation. |
-| **Persistence** | Drizzle ORM and MySQL | Stores authenticated field reports and human decision receipts. |
-| **Object storage** | Managed S3 helper | Stores only an optional field-photo object referenced from its report. |
-| **Identity** | Managed OAuth | Attributes protected actions to an authenticated operator. |
+| **Visual evidence adapter** | `server/aegisPhoto.ts`, `gemini-3-flash-preview` | Validates an optional public photo and extracts only a constrained visual observation. |
+| **Persistence** | Drizzle ORM and MySQL | Stores explicitly unattributed public field reports and public human-response receipts. |
+| **Object storage** | Managed S3 helper | Stores only an optional field-photo object referenced from its public report. |
 
 ```mermaid
 flowchart LR
@@ -26,7 +25,7 @@ flowchart LR
   S --> A[Open-Meteo air quality]
   F --> E[Aegis evidence engine]
   A --> E
-  O[Authenticated operator] --> R[Field report: text / measured gust]
+  O[Public contributor] --> R[Unattributed field contribution]
   O --> P[Optional field photo]
   P --> V[Constrained visual observation]
   R --> D[(MySQL field report)]
@@ -51,11 +50,11 @@ Aegis asks for the smallest variable set needed for its explicit policy. It disp
 | Weather | `live` | Wind and weather exposure | Missing weather reduces confidence and may cause refusal. |
 | Rain | `live` | Near-term surface and electrical exposure | Missing rain reduces coverage. |
 | Air | `live` | Outdoor air exposure | Missing air reduces coverage and may be the smallest missing fact. |
-| Field | `operator` or `missing` | Local context, measured gust comparison, and ground-truth condition | An absent field report is explicit; it is never manufactured. |
+| Field | `operator`, `unattributed`, or `missing` | Attributed field context can participate in policy; public context is visible but cannot restore confidence or change the recommendation | An absent field report is explicit; it is never manufactured. |
 
 ## Refusal and Hard-Mode Policy
 
-The engine maintains exactly four source identities. Coverage is the share of those sources available as live or attributed operator evidence. Confidence begins with coverage, then accounts for material wind disagreement and deliberate weather evidence loss.
+The engine maintains exactly four source identities. Coverage is the share of those sources available as live or attributed operator evidence. Public contributions remain visible as `unattributed` context but do not increase coverage, confidence, risk score, or decision authority. Confidence begins with coverage, then accounts for material wind disagreement and deliberate weather evidence loss.
 
 | Condition | Policy effect | Why it matters in the demo |
 | --- | --- | --- |
@@ -69,7 +68,7 @@ When refusing, Aegis names the **smallest missing fact**. For a missing weather 
 
 ## Optional Photo Evidence: Boundaries and Privacy
 
-Photo input is available only after sign-in. The server accepts only JPEG, PNG, and WebP data URLs at or below 2.5 MB. It persists the original as a protected storage object associated with the field report. It sends the image to the server-side visual extractor, which must return a strict JSON shape containing neutral visible scene conditions, surface status, visibility, weather indicators, and whether human verification remains necessary.
+Photo input is available with a public contribution. The server accepts only JPEG, PNG, and WebP data URLs at or below 2.5 MB. It persists the original as an object associated with the explicitly unattributed report. It sends the image to the server-side visual extractor, which must return a strict JSON shape containing neutral visible scene conditions, surface status, visibility, weather indicators, and whether human verification remains necessary.
 
 The visual extractor is deliberately prohibited from identifying people, deciding whether operations may proceed, assigning a safety score, or executing an action. The field condition selected by the operator remains human-provided. Photo-derived text is supporting context only and is never silently reclassified as a live sensor source.
 
@@ -77,16 +76,16 @@ Operators should submit only a scene image necessary for the assessment. They sh
 
 ## Human Accountability
 
-Aegis provides recommendations but never performs the follow-on action. The authenticated `recordReview` procedure stores an operator’s acknowledgement, request for a check, or deferral with the decision, confidence, risk score, and evidence snapshot at that moment. This preserves the distinction between what the system recommended and what the human chose.
+Aegis provides recommendations but never performs the follow-on action. The public `recordReview` procedure stores an explicitly unattributed acknowledgement, request for a check, or deferral with the decision, confidence, risk score, and evidence snapshot at that moment. This preserves the distinction between what the system recommended and what a public contributor selected, without misrepresenting the response as accountable operational authorisation.
 
 | Record | Author | Immutable content | Purpose |
 | --- | --- | --- | --- |
-| Field report | Authenticated operator | Condition, measured gust when supplied, text, optional photo metadata, optional visual observation | Captures attributable site context. |
-| Decision receipt | Authenticated operator | Recommendation snapshot, confidence, risk, action, operator action, and note | Preserves human responsibility and an auditable outcome. |
+| Field contribution | Public contributor | Condition, measured gust when supplied, text, optional photo metadata, optional visual observation, `unattributed` marker | Surfaces context without altering the recommendation. |
+| Decision receipt | Public contributor | Recommendation snapshot, confidence, risk, action, public response, note, `unattributed` marker | Records a non-authorising public response separately from the engine outcome. |
 
 ## Test and Validation Plan
 
-The repository’s automated suite currently has **16 passing tests**. It covers the deterministic proceed/restrict/refuse behaviour, authenticated route guards, existing protected-flow coverage, and field-photo parser guardrails. A separate self-cleaning integration probe exercised live evidence retrieval, hard-mode refusal, field-report persistence, decision-receipt persistence, and cleanup.
+The repository’s automated suite currently has **18 passing tests**. It covers deterministic proceed/restrict/refuse behaviour, visual-observation and public-contribution decision boundaries, existing route coverage, and field-photo parser guardrails. Self-cleaning integration probes exercise live evidence retrieval, hard-mode refusal, public field-report persistence, public decision-receipt persistence, and cleanup.
 
 | Check | Result | Evidence |
 | --- | --- | --- |
@@ -95,6 +94,7 @@ The repository’s automated suite currently has **16 passing tests**. It covers
 | Live public desk | Pass | Browser validation resolved live Bengaluru values and a 75% public evidence coverage. |
 | 30% hard-mode loss | Pass | Hiding weather yielded 50% coverage, 40% confidence, and explicit refusal. |
 | Storage and review lifecycle | Pass | Self-cleaning integration probe saved and removed temporary data. |
+| Anonymous public lifecycle | Pass | Self-cleaning public API probe saved an unattributed report and receipt through public tRPC procedures, confirmed both attribution markers, and deleted both rows. |
 | Production bundle | Pass | `pnpm build` completed successfully. |
 
 ## References

@@ -10,13 +10,13 @@ const evidence: LiveEvidence = {
 
 describe("Aegis evidence-weighted decision engine", () => {
   it("proceeds only when the live evidence is sufficiently complete and benign", () => {
-    const result = assessEvidence(evidence, { fieldCondition: "clear", note: "Ground is dry and access is normal." });
+    const result = assessEvidence(evidence, { attribution: "authenticated", fieldCondition: "clear", note: "Ground is dry and access is normal." });
     expect(result.decision).toBe("proceed");
     expect(result.confidence).toBeGreaterThanOrEqual(90);
   });
 
   it("restricts operations when live evidence indicates meaningful exposure", () => {
-    const result = assessEvidence({ ...evidence, weather: { ...evidence.weather, windGusts: 56 } }, { fieldCondition: "wet", note: "Loose equipment is moving in exposed areas." });
+    const result = assessEvidence({ ...evidence, weather: { ...evidence.weather, windGusts: 56 } }, { attribution: "authenticated", fieldCondition: "wet", note: "Loose equipment is moving in exposed areas." });
     expect(result.decision).toBe("restrict");
     expect(result.anomalies.some(item => item.label === "High gust exposure")).toBe(true);
   });
@@ -42,5 +42,20 @@ describe("Aegis evidence-weighted decision engine", () => {
     expect(withVisualObservationOnly.decision).toBe(withoutVisualObservation.decision);
     expect(withVisualObservationOnly.coverage).toBe(withoutVisualObservation.coverage);
     expect(withVisualObservationOnly.sources.find(source => source.id === "field")?.state).toBe("missing");
+  });
+
+  it("labels public field input as unattributed without letting it restore confidence", () => {
+    const withoutPublicContribution = assessEvidence(evidence, {});
+    const result = assessEvidence(evidence, {
+      attribution: "unattributed",
+      fieldCondition: "unsafe",
+      note: "A member of the public reported a loose barrier.",
+    });
+
+    expect(result.sources.find(source => source.id === "field")?.state).toBe("unattributed");
+    expect(result.coverage).toBe(75);
+    expect(result.anomalies.some(item => item.label === "Public safety concern")).toBe(true);
+    expect(result.riskScore).toBe(withoutPublicContribution.riskScore);
+    expect(result.decision).toBe(withoutPublicContribution.decision);
   });
 });

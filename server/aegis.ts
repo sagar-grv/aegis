@@ -1,8 +1,9 @@
 export type AegisSourceId = "weather" | "rain" | "air" | "field";
-export type SourceState = "live" | "operator" | "missing" | "fault_injected";
+export type SourceState = "live" | "operator" | "unattributed" | "missing" | "fault_injected";
 export type AegisDecision = "proceed" | "restrict" | "refuse";
 
 export type FieldReportInput = {
+  attribution?: "authenticated" | "unattributed";
   siteLabel?: string;
   fieldCondition?: "clear" | "wet" | "unsafe" | "unknown";
   observedWindKph?: number | null;
@@ -56,35 +57,36 @@ export async function getLiveEvidence(latitude: number, longitude: number): Prom
 }
 
 function clamp(value: number) { return Math.max(0, Math.min(100, Math.round(value))); }
-function sourceState(id: AegisSourceId, disabled: AegisSourceId[], hasField: boolean): SourceState {
+function sourceState(id: AegisSourceId, disabled: AegisSourceId[], hasTrustedField: boolean, hasAnyField: boolean): SourceState {
   if (disabled.includes(id)) return "fault_injected";
-  if (id === "field") return hasField ? "operator" : "missing";
+  if (id === "field") return hasTrustedField ? "operator" : hasAnyField ? "unattributed" : "missing";
   return "live";
 }
 
 export function assessEvidence(evidence: LiveEvidence, field: FieldReportInput = {}, disabled: AegisSourceId[] = []) {
-  const hasField = Boolean(field.note?.trim()) || Boolean(field.fieldCondition && field.fieldCondition !== "unknown") || typeof field.observedWindKph === "number";
-  const sources = (Object.keys({ weather: 1, rain: 1, air: 1, field: 1 }) as AegisSourceId[]).map(id => ({ id, state: sourceState(id, disabled, hasField) }));
+  const hasAnyField = Boolean(field.note?.trim()) || Boolean(field.fieldCondition && field.fieldCondition !== "unknown") || typeof field.observedWindKph === "number";
+  const hasTrustedField = field.attribution === "authenticated" && hasAnyField;
+  const sources = (Object.keys({ weather: 1, rain: 1, air: 1, field: 1 }) as AegisSourceId[]).map(id => ({ id, state: sourceState(id, disabled, hasTrustedField, hasAnyField) }));
   const present = sources.filter(source => source.state === "live" || source.state === "operator").length;
   const coverage = Math.round((present / sources.length) * 100);
   const weatherMissing = sources.find(source => source.id === "weather")?.state !== "live";
   const airMissing = sources.find(source => source.id === "air")?.state !== "live";
   const rainMissing = sources.find(source => source.id === "rain")?.state !== "live";
-  const fieldMissing = sources.find(source => source.id === "field")?.state === "missing";
+  const fieldMissing = sources.find(source => source.id === "field")?.state !== "operator";
 
   const anomalies: { label: string; explanation: string; severity: "watch" | "high" }[] = [];
-  if (!weatherMissing && hasField && typeof field.observedWindKph === "number" && Math.abs(field.observedWindKph - evidence.weather.windGusts) >= 18) anomalies.push({ label: "Wind disagreement", explanation: `Field observation (${field.observedWindKph} km/h) differs materially from the live gust estimate (${evidence.weather.windGusts} km/h).`, severity: "high" });
+  if (!weatherMissing && hasTrustedField && typeof field.observedWindKph === "number" && Math.abs(field.observedWindKph - evidence.weather.windGusts) >= 18) anomalies.push({ label: "Wind disagreement", explanation: `Field observation (${field.observedWindKph} km/h) differs materially from the live gust estimate (${evidence.weather.windGusts} km/h).`, severity: "high" });
   if (!weatherMissing && evidence.weather.windGusts >= 45) anomalies.push({ label: "High gust exposure", explanation: `Live gust estimate is ${evidence.weather.windGusts} km/h.`, severity: "high" });
   if (!airMissing && evidence.air.usAqi >= 101) anomalies.push({ label: "Air-quality degradation", explanation: `Current US AQI is ${evidence.air.usAqi}.`, severity: evidence.air.usAqi >= 151 ? "high" : "watch" });
   if (!rainMissing && evidence.rain.probability >= 70) anomalies.push({ label: "High rain likelihood", explanation: `Near-term precipitation probability is ${evidence.rain.probability}%.`, severity: "watch" });
-  if (field.fieldCondition === "unsafe") anomalies.push({ label: "Operator safety concern", explanation: "The operator marked the current field condition unsafe.", severity: "high" });
+  if (field.fieldCondition === "unsafe") anomalies.push({ label: field.attribution === "unattributed" ? "Public safety concern" : "Operator safety concern", explanation: field.attribution === "unattributed" ? "An unattributed public contribution reported an immediate safety concern; human verification is required before it can influence the recommendation." : "The operator marked the current field condition unsafe.", severity: hasTrustedField ? "high" : "watch" });
 
   let riskScore = 0;
   if (!weatherMissing) riskScore += Math.min(30, Math.max(0, evidence.weather.windGusts - 20));
   if (!airMissing) riskScore += Math.min(30, Math.max(0, evidence.air.usAqi - 50) * 0.35);
   if (!rainMissing) riskScore += evidence.rain.probability * 0.16;
-  if (field.fieldCondition === "wet") riskScore += 12;
-  if (field.fieldCondition === "unsafe") riskScore += 38;
+  if (hasTrustedField && field.fieldCondition === "wet") riskScore += 12;
+  if (hasTrustedField && field.fieldCondition === "unsafe") riskScore += 38;
   riskScore = clamp(riskScore);
 
   const confidence = clamp(coverage - anomalies.filter(item => item.label === "Wind disagreement").length * 18 - (weatherMissing ? 10 : 0));

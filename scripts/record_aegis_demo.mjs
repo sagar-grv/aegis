@@ -3,7 +3,7 @@ import { mkdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 
 const outputDirectory = "/home/ubuntu/webdev-static-assets";
-const outputPath = path.join(outputDirectory, "aegis-live-hard-mode-walkthrough.webm");
+const outputPath = path.join(outputDirectory, "aegis-public-hard-mode-walkthrough.webm");
 const productionUrl = "https://aegis-ecru.vercel.app";
 
 await mkdir(outputDirectory, { recursive: true });
@@ -23,6 +23,7 @@ const page = await context.newPage();
 try {
   await page.goto(productionUrl, { waitUntil: "domcontentloaded", timeout: 30_000 });
   await page.getByText("Proceed with monitoring.", { exact: true }).waitFor({ timeout: 30_000 });
+  await page.getByText("Public contributions are unattributed.", { exact: false }).waitFor({ timeout: 10_000 });
   await page.waitForTimeout(4_000);
 
   const weatherFaultControl = page.getByRole("button", { name: "Wind & weather", exact: true });
@@ -44,10 +45,15 @@ try {
   await page.waitForTimeout(500);
   await newDelhi.click();
   await page.getByText("EVIDENCE LEDGER / NEW DELHI — INDIA GATE", { exact: true }).waitFor({ timeout: 20_000 });
-  await page.waitForTimeout(5_000);
+  await page.waitForTimeout(3_000);
 
-  const operatorSignIn = page.getByRole("button", { name: /Operator sign in/ });
-  await operatorSignIn.hover();
+  await page.getByRole("button", { name: "Add public field fact", exact: true }).click();
+  await page.getByText("Contribute a field fact", { exact: true }).waitFor({ timeout: 10_000 });
+  await page.waitForTimeout(3_000);
+  await page.getByRole("button", { name: "Close" }).click().catch(async () => page.keyboard.press("Escape"));
+
+  await page.getByRole("button", { name: "Record public human response", exact: true }).click();
+  await page.getByText("What will you do with Aegis’s recommendation?", { exact: true }).waitFor({ timeout: 10_000 });
   await page.waitForTimeout(4_000);
 } finally {
   await page.close();

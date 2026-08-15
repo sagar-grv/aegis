@@ -123,7 +123,8 @@ export const learningPaths = mysqlTable("learning_paths", {
 /** Genuine operator observations supplied through the Aegis Live Decision Desk. */
 export const aegisFieldReports = mysqlTable("aegis_field_reports", {
   id: int("id").autoincrement().primaryKey(),
-  operatorUserId: int("operatorUserId").notNull(),
+  operatorUserId: int("operatorUserId"),
+  attribution: mysqlEnum("attribution", ["authenticated", "unattributed"]).default("authenticated").notNull(),
   latitude: varchar("latitude", { length: 24 }).notNull(),
   longitude: varchar("longitude", { length: 24 }).notNull(),
   siteLabel: varchar("siteLabel", { length: 140 }).notNull(),
@@ -138,7 +139,8 @@ export const aegisFieldReports = mysqlTable("aegis_field_reports", {
 /** Human confirmation is recorded separately from the recommendation, preserving accountability. */
 export const aegisDecisionReceipts = mysqlTable("aegis_decision_receipts", {
   id: int("id").autoincrement().primaryKey(),
-  operatorUserId: int("operatorUserId").notNull(),
+  operatorUserId: int("operatorUserId"),
+  attribution: mysqlEnum("attribution", ["authenticated", "unattributed"]).default("authenticated").notNull(),
   latitude: varchar("latitude", { length: 24 }).notNull(),
   longitude: varchar("longitude", { length: 24 }).notNull(),
   siteLabel: varchar("siteLabel", { length: 140 }).notNull(),

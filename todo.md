@@ -62,3 +62,6 @@
 - [x] Replace remaining legacy InsightLoop documentation and remove obsolete Aegis submission links before final delivery.
 - [x] Adapt the Express/tRPC application for Vercel serverless execution and verify the deployed public `aegis.live` procedure returns live evidence rather than a 404.
 - [x] Record an evidence-based Aegis walkthrough showing live public telemetry, deliberate weather evidence loss, explicit refusal, smallest-missing-fact recovery, and an Indian site change; state the authenticated operator test boundary without fabricating a session.
+- [ ] Remove the sign-in requirement from Aegis field-report and human-decision flows; persist public submissions as explicitly unattributed records and verify the public workflow without fabricated evidence.
+- [ ] Run a self-cleaning public-API verification for anonymous Aegis field reports and decision receipts, confirming no temporary record remains after the test.
+- [ ] Re-record the Aegis demonstration to show the live public desk, hard-mode refusal, anonymous public contribution and response controls, and the self-cleaning public API verification.

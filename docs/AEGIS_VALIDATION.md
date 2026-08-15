@@ -18,4 +18,4 @@ The resulting state was **Aegis refuses to decide** at 50% coverage and 40% conf
 
 ## Post-Enhancement Public Check
 
-After adding the authenticated optional field-photo path, the public live-only flow was rechecked. Bengaluru resolved to a **Proceed with monitoring** recommendation at 75% coverage, with real Open-Meteo weather and air-quality values rendered in the interface. The public view remained correctly restricted from creating field evidence or decision receipts.
+After opening the field-report and human-receipt paths to the public, Bengaluru resolved to a **Proceed with monitoring** recommendation at 75% coverage, with real Open-Meteo weather and air-quality values rendered in the interface. The public view directly exposed both contribution modals and explicitly stated that the resulting records are unattributed and cannot restore confidence or authorise an action.

@@ -9,3 +9,7 @@ The codebase also contains authenticated field reports, decision receipts, objec
 The latest production release is `READY` on commit `acb85f2`. A final public browser check resolved Bengaluru telemetry and a `PROCEED / LIVE MONITORING` assessment with 75% evidence coverage; its direct tRPC response included current weather, 35.3 km/h wind gusts, 8% rain probability, and US AQI 37. The browser remains unauthenticated, so no user-owned field record or visual evidence was submitted during this verification.
 
 An attempt to launch the production OAuth handoff from the connected browser reset that browser session to `about:blank` instead of presenting an interactive authorization form. This environment limitation is documented rather than worked around by impersonating an operator or generating a substitute field observation.
+
+After the anonymous-public access conversion, the local browser showed no sign-in control. **Add public field fact** opened the contribution modal directly, with field condition, optional measured gust, note, and optional-image controls. The modal explicitly states that contributions are unattributed and cannot restore Aegis confidence or authorise an action.
+
+The browser also opened **Record public human response** without authentication. Its receipt modal labels the response unattributed, confirms that Aegis cannot execute the action, and presents only separate human response choices: defer, request a check, or acknowledge the recommendation.
