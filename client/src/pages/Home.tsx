@@ -39,16 +39,18 @@ export default function Home() {
   const [fieldPhotoError, setFieldPhotoError] = useState<string | null>(null);
   const [reviewNote, setReviewNote] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+  const [sessionField, setSessionField] = useState<{ fieldCondition: "clear" | "wet" | "unsafe" | "unknown"; observedWindKph: number | null; note: string } | null>(null);
   const utils = trpc.useUtils();
 
   const locationInput = useMemo(() => ({ latitude: site.latitude, longitude: site.longitude, siteLabel: site.label }), [site]);
+  const assessmentInput = useMemo(() => ({ ...locationInput, disabled, publicField: sessionField ?? undefined }), [locationInput, disabled, sessionField]);
   const liveQuery = trpc.aegis.live.useQuery({ latitude: site.latitude, longitude: site.longitude }, { refetchInterval: 120_000, retry: 1 });
   const publicAssessmentQuery = trpc.aegis.preview.useQuery({ ...locationInput, disabled }, { refetchInterval: 120_000, retry: 1 });
-  const assessmentQuery = trpc.aegis.assess.useQuery({ ...locationInput, disabled }, { refetchInterval: 120_000, retry: 1 });
+  const assessmentQuery = trpc.aegis.assess.useQuery(assessmentInput, { refetchInterval: 120_000, retry: 1 });
 
   const fieldMutation = trpc.aegis.reportField.useMutation({
     onSuccess: async data => {
-      setNotice(data.persistence === "unavailable" ? "Your public contribution was not stored because this deployment has no persistence service. Live evidence and hard mode remain available." : data.photoEvidence ? "Public field contribution and neutral visual observation recorded. Aegis recalculated the evidence graph." : "Public field contribution recorded. Aegis recalculated the evidence graph.");
+      setNotice(data.persistence === "unavailable" ? "Your public contribution is visible in this browser session only because this deployment has no persistence service. Live evidence and hard mode remain available." : data.photoEvidence ? "Public field contribution and neutral visual observation recorded. Aegis recalculated the evidence graph." : "Public field contribution recorded. Aegis recalculated the evidence graph.");
       setShowReport(false); setFieldNote(""); setObservedWind(""); setFieldCondition("unknown"); setFieldPhotoDataUrl(null); setFieldPhotoName(null); setFieldPhotoError(null);
       await Promise.all([assessmentQuery.refetch(), publicAssessmentQuery.refetch()]);
     },
@@ -68,9 +70,9 @@ export default function Home() {
   const riskTone = status === "refuse" ? "refuse" : status === "restrict" ? "restrict" : status === "proceed" ? "proceed" : "observe";
 
   const toggleFault = (source: SourceId) => setDisabled(current => current.includes(source) ? current.filter(item => item !== source) : current.length >= 2 ? current : [...current, source]);
-  const selectSite = (next: Site) => { setSite(next); setDisabled([]); setNotice(null); };
+  const selectSite = (next: Site) => { setSite(next); setDisabled([]); setSessionField(null); setNotice(null); };
   const refresh = async () => { await Promise.all([liveQuery.refetch(), publicAssessmentQuery.refetch(), assessmentQuery.refetch()]); setNotice("Live sources refreshed from the environmental evidence providers."); };
-  const submitField = (event: React.FormEvent) => { event.preventDefault(); fieldMutation.mutate({ ...locationInput, fieldCondition, observedWindKph: observedWind ? Number(observedWind) : null, note: fieldNote, photoDataUrl: fieldPhotoDataUrl ?? undefined }); };
+  const submitField = (event: React.FormEvent) => { event.preventDefault(); const publicField = { fieldCondition, observedWindKph: observedWind ? Number(observedWind) : null, note: fieldNote }; setSessionField(publicField); fieldMutation.mutate({ ...locationInput, ...publicField, photoDataUrl: fieldPhotoDataUrl ?? undefined }); };
   const submitReview = (action: "approve" | "request_check" | "defer") => receiptMutation.mutate({ ...locationInput, disabled, operatorAction: action, operatorNote: reviewNote || "Operator acknowledgement recorded." });
   const selectFieldPhoto = (event: ChangeEvent<HTMLInputElement>) => {
     const photo = event.target.files?.[0];
@@ -103,7 +105,7 @@ export default function Home() {
           <div className="ag-hero-actions"><button className="ag-ghost" onClick={refresh} disabled={liveQuery.isFetching || assessmentQuery.isFetching || publicAssessmentQuery.isFetching}><RefreshCw size={liveQuery.isFetching || publicAssessmentQuery.isFetching ? 16 : 16} className={liveQuery.isFetching || publicAssessmentQuery.isFetching ? "spin" : ""} /> Refresh evidence</button><button className="ag-primary" onClick={() => setShowReport(true)}><MessageSquareText size={16} /> Add public field fact</button></div>
         </section>
 
-        <section className="ag-auth-banner"><UserRoundCheck size={19} /><div><strong>Public contributions are unattributed.</strong><span>They can surface a concern, but cannot restore Aegis confidence or authorise an action.{assessmentQuery.data && !assessmentQuery.data.persistenceAvailable ? " This deployment does not store public contributions." : ""}</span></div></section>
+        <section className="ag-auth-banner"><UserRoundCheck size={19} /><div><strong>Public contributions are unattributed.</strong><span>They can surface a concern, but cannot restore Aegis confidence or authorise an action.{assessmentQuery.data && !assessmentQuery.data.persistenceAvailable ? " This deployment keeps them in the contributor’s current browser session only." : ""}</span></div></section>
 
         <section className="ag-command-grid">
           <article className="ag-decision-card">

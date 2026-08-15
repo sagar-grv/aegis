@@ -36,6 +36,11 @@ const fieldInput = locationInput.extend({
   note: z.string().trim().min(4).max(2000),
   photoDataUrl: z.string().max(3_500_000).optional(),
 });
+const publicFieldContextInput = z.object({
+  fieldCondition: z.enum(["clear", "wet", "unsafe", "unknown"]),
+  observedWindKph: z.number().int().min(0).max(200).nullable().optional(),
+  note: z.string().trim().min(4).max(2000),
+}).optional();
 
 export const appRouter = router({
   system: systemRouter,
@@ -62,7 +67,7 @@ export const appRouter = router({
       const evidence = await getLiveEvidence(input.latitude, input.longitude);
       return { assessment: assessEvidence(evidence, {}, input.disabled as AegisSourceId[]) };
     }),
-    assess: publicProcedure.input(locationInput.extend({ disabled: disabledSources })).query(async ({ input }) => {
+    assess: publicProcedure.input(locationInput.extend({ disabled: disabledSources, publicField: publicFieldContextInput })).query(async ({ input }) => {
       const evidence = await getLiveEvidence(input.latitude, input.longitude);
       let latest = null;
       try {
@@ -70,7 +75,9 @@ export const appRouter = router({
       } catch (error) {
         console.warn("[Aegis] Public assessment continuing without persistence:", error instanceof Error ? error.message : error);
       }
-      const field = latest ? { attribution: latest.attribution, siteLabel: latest.siteLabel, fieldCondition: latest.fieldCondition, observedWindKph: latest.observedWindKph, note: latest.note, visualObservation: latest.visualObservation as Record<string, unknown> | null } : {};
+      const field = latest
+        ? { attribution: latest.attribution, siteLabel: latest.siteLabel, fieldCondition: latest.fieldCondition, observedWindKph: latest.observedWindKph, note: latest.note, visualObservation: latest.visualObservation as Record<string, unknown> | null }
+        : input.publicField ? { attribution: "unattributed" as const, ...input.publicField } : {};
       return { assessment: assessEvidence(evidence, field, input.disabled as AegisSourceId[]), fieldReport: latest, persistenceAvailable: Boolean(await getDb()) };
     }),
     reportField: publicProcedure.input(fieldInput).mutation(async ({ input }) => {
