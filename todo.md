@@ -1,4 +1,4 @@
-# STAMPERS CrisisGrid — Delivery Checklist
+# Aegis — STAMPERS Track 01 Delivery Checklist
 
 - [x] Establish the project scaffold and chosen design direction.
 - [x] Build the crisis-response dashboard and interactive simulation.
